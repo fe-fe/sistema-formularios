@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .card { border: 1px solid #ddd; padding: 15px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+<h1>Resultados da Avaliação</h1>
+<a href="../logout">Sair</a>
+
+<div style="margin: 20px 0; background: #eee; padding: 15px;">
+    <label>ID da Turma para visualizar:</label>
+    <input type="number" id="turmaId">
+    <button onclick="buscarRelatorio()">Carregar Dados</button>
+</div>
+
+<div id="resultado">
+    <p>Selecione uma turma acima.</p>
+</div>
+
+<script>
+    async function buscarRelatorio() {
+        const tid = document.getElementById('turmaId').value;
+        // Aqui chamamos o endpoint do RelatorioServlet (que precisa estar implementado para devolver JSON)
+        // Se você não implementou o RelatorioService ainda, isso dará erro 404 ou 500.
+        const resp = await fetch(`../api/relatorios/visualizar?turmaId=${tid}`);
+
+        if(resp.status === 401) { window.location.href = '../login'; return; }
+
+        const div = document.getElementById('resultado');
+        div.innerHTML = 'Carregando...';
+
+        try {
+            const dados = await resp.json();
+            // Exibição simplificada de JSON para teste
+            div.innerHTML = `<pre>${JSON.stringify(dados, null, 2)}</pre>`;
+        } catch(e) {
+            div.innerHTML = '<p style="color:red">Erro ao carregar ou formato inválido.</p>';
+        }
+    }
+</script>
+</body>
+</html>

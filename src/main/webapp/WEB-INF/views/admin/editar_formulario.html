@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar Formulário</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        .q-box { border: 1px solid #ccc; padding: 15px; margin: 10px 0; background: #fafafa; }
+        label { font-weight: bold; }
+        input[type="text"] { width: 100%; box-sizing: border-box; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+<a href="processos">Voltar</a>
+<h1>Editor de Formulário</h1>
+
+<label>Título do Formulário</label>
+<input type="text" id="titulo">
+
+<label><input type="checkbox" id="anonimo"> Anônimo?</label>
+
+<br><br>
+<label>ID Perfil Destino (1=Aluno, 2=Prof, 3=Coord)</label>
+<input type="number" id="perfilId" value="3">
+
+<hr>
+<h3>Questões</h3>
+<div id="lista-questoes"></div>
+<button onclick="addQuestao()">+ Adicionar Questão</button>
+
+<hr>
+<button onclick="salvar()" style="background:green; color:white; padding:10px;">Salvar Formulário</button>
+
+<script>
+    function addQuestao() {
+        const div = document.createElement('div');
+        div.className = 'q-box';
+        div.innerHTML = `
+            <label>Enunciado:</label>
+            <input type="text" class="enunciado">
+
+            <label>Tipo:</label>
+            <select class="tipo">
+                <option value="ABERTA">Texto Livre</option>
+                <option value="OBJETIVA">Objetiva (Radio)</option>
+                <option value="MULTIPLA_ESCOLHA">Múltipla Escolha (Checkbox)</option>
+            </select>
+            <label><input type="checkbox" class="obrig"> Obrigatória</label>
+            <br><br>
+            <label>Alternativas (separe por vírgula):</label>
+            <input type="text" class="alts" placeholder="Ex: Ótimo, Bom, Regular, Ruim">
+        `;
+        document.getElementById('lista-questoes').appendChild(div);
+    }
+
+    async function salvar() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pid = urlParams.get('processoId');
+
+        const questoes = [];
+        document.querySelectorAll('.q-box').forEach(div => {
+            const tipo = div.querySelector('.tipo').value;
+            const txtAlts = div.querySelector('.alts').value;
+            let listaAlts = [];
+
+            if(tipo !== 'ABERTA' && txtAlts) {
+                listaAlts = txtAlts.split(',').map(t => ({ texto: t.trim(), peso: 1 }));
+            }
+
+            questoes.push({
+                enunciado: div.querySelector('.enunciado').value,
+                tipo: tipo,
+                obrigatoria: div.querySelector('.obrig').checked,
+                alternativas: listaAlts
+            });
+        });
+
+        const dto = {
+            titulo: document.getElementById('titulo').value,
+            anonimo: document.getElementById('anonimo').checked,
+            processoId: parseInt(pid),
+            perfilDestinoId: parseInt(document.getElementById('perfilId').value),
+            questoes: questoes
+        };
+
+        const resp = await fetch('../api/admin/formularios', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(dto)
+        });
+
+        if(resp.ok) { alert('Criado!'); window.location.href = 'processos'; }
+        else { alert('Erro ao criar'); }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Responder Avaliação</title>
+    <style>
+        .questao-box { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        .enunciado { font-weight: bold; margin-bottom: 10px; display: block; }
+    </style>
+</head>
+<body>
+<h1 id="titulo-form">Carregando...</h1>
+<p id="contexto-anonimo"></p>
+
+<div id="container-questoes"></div>
+
+<button id="btn-enviar" onclick="enviarResposta()" style="margin-top: 20px;">Enviar Avaliação</button>
+<p id="msg-erro" style="color: red;"></p>
+
+<script>
+    // Pega IDs da URL (ex: responder?turmaId=10&formularioId=5)
+    const params = new URLSearchParams(window.location.search);
+    const turmaId = params.get('turmaId');
+    const formularioId = params.get('formularioId');
+
+    async function carregarFormulario() {
+        try {
+            const response = await fetch(`../api/aluno/responder?turmaId=${turmaId}&formularioId=${formularioId}`);
+
+            if (response.status === 403) {
+                document.body.innerHTML = "<h1>Você já respondeu este formulário!</h1><a href='dashboard'>Voltar</a>";
+                return;
+            }
+
+            const form = await response.json();
+
+            document.getElementById('titulo-form').innerText = form.titulo;
+            document.getElementById('contexto-anonimo').innerText = form.anonimo ? "Resposta Anônima" : "Resposta Identificada";
+
+            const container = document.getElementById('container-questoes');
+
+            form.questoes.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.className = 'questao-box';
+                div.dataset.id = q.id; // Guarda o ID da questão na DIV
+                div.dataset.tipo = q.tipo;
+
+                let html = `<span class="enunciado">${index + 1}. ${q.enunciado} ${q.obrigatoria ? '*' : ''}</span>`;
+
+                if (q.tipo === 'ABERTA') {
+                    html += `<textarea name="q_${q.id}" rows="4" style="width: 100%"></textarea>`;
+                } else if (q.tipo === 'OBJETIVA') {
+                    q.alternativas.forEach(alt => {
+                        html += `<label><input type="radio" name="q_${q.id}" value="${alt.id}"> ${alt.texto}</label><br>`;
+                    });
+                } else if (q.tipo === 'MULTIPLA_ESCOLHA') {
+                    q.alternativas.forEach(alt => {
+                        html += `<label><input type="checkbox" name="q_${q.id}" value="${alt.id}"> ${alt.texto}</label><br>`;
+                    });
+                }
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao carregar formulário.");
+        }
+    }
+
+    async function enviarResposta() {
+        const respostasMap = {};
+        const questoesDivs = document.querySelectorAll('.questao-box');
+
+        questoesDivs.forEach(div => {
+            const id = div.dataset.id;
+            const tipo = div.dataset.tipo;
+            const key = `questao_${id}`; // Formato esperado pelo Backend
+
+            if (tipo === 'ABERTA') {
+                const texto = div.querySelector('textarea').value;
+                if (texto) respostasMap[key] = [texto]; // Backend espera array de strings
+            } else {
+                // Pega todos os marcados (funciona pra radio e checkbox)
+                const marcados = Array.from(div.querySelectorAll('input:checked')).map(i => i.value);
+                if (marcados.length > 0) respostasMap[key] = marcados;
+            }
+        });
+
+        const payload = {
+            turmaId: parseInt(turmaId),
+            formularioId: parseInt(formularioId),
+            respostas: respostasMap
+        };
+
+        try {
+            const response = await fetch('../api/aluno/responder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert("Enviado com sucesso!");
+                window.location.href = 'dashboard';
+            } else {
+                const erro = await response.json();
+                document.getElementById('msg-erro').innerText = erro.erro || "Erro ao enviar.";
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', carregarFormulario);
+</script>
+</body>
+</html>

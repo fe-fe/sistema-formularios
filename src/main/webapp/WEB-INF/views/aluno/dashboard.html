@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel do Aluno</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+<h1>Minhas Turmas</h1>
+<a href="../logout">Sair</a>
+
+<table>
+    <thead>
+    <tr>
+        <th>Turma</th>
+        <th>Disciplina</th>
+        <th>Professor</th>
+        <th>Ações</th>
+    </tr>
+    </thead>
+    <tbody id="tabela-corpo">
+    </tbody>
+</table>
+
+<script>
+    async function carregarTurmas() {
+        try {
+            const response = await fetch('../api/aluno/dashboard'); // Sobe um nível para achar /api
+
+            if (response.status === 401) {
+                window.location.href = '../login';
+                return;
+            }
+
+            const turmas = await response.json();
+            const tbody = document.getElementById('tabela-corpo');
+            tbody.innerHTML = '';
+
+            if (turmas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">Nenhuma turma encontrada.</td></tr>';
+                return;
+            }
+
+            turmas.forEach(t => {
+                const tr = document.createElement('tr');
+                // Exemplo de link hardcoded para Formulario ID 1.
+                // No mundo real, você teria um endpoint para listar avaliações pendentes.
+                tr.innerHTML = `
+                    <td>${t.nome}</td>
+                    <td>${t.disciplina.nome}</td>
+                    <td>${t.professor.nome}</td>
+                    <td>
+                        <a href="responder?turmaId=${t.id}&formularioId=1">Responder</a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+        } catch (error) {
+            console.error("Erro ao carregar turmas", error);
+        }
+    }
+
+    // Carrega ao abrir a página
+    document.addEventListener('DOMContentLoaded', carregarTurmas);
+</script>
+</body>
+</html>

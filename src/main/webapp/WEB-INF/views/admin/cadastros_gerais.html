@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastros Gerais</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+        .section { border: 1px solid #ccc; padding: 20px; margin-bottom: 20px; border-radius: 5px; background: #f9f9f9; }
+        h2 { margin-top: 0; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { margin-top: 15px; padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #333; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a href="processos">Processos/Formulários</a> |
+    <a href="cadastros" style="color: #007bff;">Cadastros Gerais</a> |
+    <a href="../logout" style="color: red;">Sair</a>
+</div>
+
+<h1>Painel Administrativo - Cadastros</h1>
+
+<div class="section">
+    <h2>1. Novo Curso</h2>
+    <input type="text" id="nomeCurso" placeholder="Ex: Engenharia Civil">
+    <button onclick="salvarCurso()">Salvar Curso</button>
+</div>
+
+<div class="section">
+    <h2>2. Nova Disciplina</h2>
+    <label>Nome:</label>
+    <input type="text" id="nomeDisciplina" placeholder="Ex: Cálculo I">
+
+    <label>Curso:</label>
+    <select id="selectCurso">
+        <option>Carregando...</option>
+    </select>
+
+    <button onclick="salvarDisciplina()">Salvar Disciplina</button>
+</div>
+
+<div class="section">
+    <h2>3. Novo Professor</h2>
+    <label>Nome:</label>
+    <input type="text" id="nomeProf">
+    <label>Email:</label>
+    <input type="email" id="emailProf">
+    <label>Senha Padrão:</label>
+    <input type="password" id="senhaProf" value="123456">
+
+    <button onclick="salvarProfessor()">Salvar Professor</button>
+</div>
+
+<div class="section">
+    <h2>4. Nova Turma</h2>
+    <label>Nome da Turma:</label>
+    <input type="text" id="nomeTurma" placeholder="Ex: Turma A - 2024/1">
+
+    <label>Disciplina:</label>
+    <select id="selectDisciplina">
+        <option>Carregando...</option>
+    </select>
+
+    <label>ID do Professor (Simplificado):</label>
+    <input type="number" id="idProfTurma" placeholder="ID do Professor (olhar no banco)">
+
+    <button onclick="salvarTurma()">Salvar Turma</button>
+</div>
+
+<script>
+    // --- FUNÇÕES DE CARREGAMENTO ---
+    async function carregarCombos() {
+        // Carrega Cursos
+        const respCursos = await fetch('../api/admin/cursos');
+        const cursos = await respCursos.json();
+        const selCurso = document.getElementById('selectCurso');
+        selCurso.innerHTML = '';
+        cursos.forEach(c => {
+            selCurso.innerHTML += `<option value="${c.id}">${c.nome}</option>`;
+        });
+
+        // Carrega Disciplinas
+        const respDisc = await fetch('../api/admin/disciplinas');
+        const disc = await respDisc.json();
+        const selDisc = document.getElementById('selectDisciplina');
+        selDisc.innerHTML = '';
+        disc.forEach(d => {
+            selDisc.innerHTML += `<option value="${d.id}">${d.nome} (Curso ID: ${d.curso.id})</option>`;
+        });
+    }
+
+    // --- FUNÇÕES DE SALVAMENTO ---
+
+    async function salvarCurso() {
+        await enviar('../api/admin/cursos', { nome: document.getElementById('nomeCurso').value });
+        carregarCombos(); // Atualiza o select de disciplinas
+    }
+
+    async function salvarDisciplina() {
+        const dados = {
+            nome: document.getElementById('nomeDisciplina').value,
+            cursoId: document.getElementById('selectCurso').value
+        };
+        await enviar('../api/admin/disciplinas', dados);
+        carregarCombos(); // Atualiza o select de turmas
+    }
+
+    async function salvarProfessor() {
+        const dados = {
+            nome: document.getElementById('nomeProf').value,
+            email: document.getElementById('emailProf').value,
+            senha: document.getElementById('senhaProf').value
+        };
+        await enviar('../api/admin/professores', dados);
+    }
+
+    async function salvarTurma() {
+        const dados = {
+            nome: document.getElementById('nomeTurma').value,
+            disciplinaId: document.getElementById('selectDisciplina').value,
+            professorId: document.getElementById('idProfTurma').value
+        };
+        await enviar('../api/admin/turmas', dados);
+    }
+
+    // Helper genérico para POST
+    async function enviar(url, dados) {
+        try {
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dados)
+            });
+            if(resp.ok) alert('Salvo com sucesso!');
+            else {
+                const erro = await resp.json();
+                alert('Erro: ' + erro.erro);
+            }
+        } catch(e) { console.error(e); alert('Erro na conexão'); }
+    }
+
+    // Inicia carregando os combos
+    carregarCombos();
+</script>
+</body>
+</html>

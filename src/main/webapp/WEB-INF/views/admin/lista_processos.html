@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Administração</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .box { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        input { padding: 5px; margin-right: 10px; }
+    </style>
+</head>
+<body>
+<h1>Gestão de Processos</h1>
+<a href="../logout">Sair</a>
+
+<div class="box">
+    <h3>Novo Processo</h3>
+    <input type="text" id="desc" placeholder="Descrição (ex: 2024/2)">
+    <input type="datetime-local" id="inicio">
+    <input type="datetime-local" id="fim">
+    <button onclick="criarProcesso()">Criar</button>
+</div>
+
+<h3>Lista de Processos</h3>
+<ul id="lista"></ul>
+
+<script>
+    async function carregar() {
+        const resp = await fetch('../api/admin/processos');
+        if(resp.status === 401) window.location.href = '../login';
+
+        const lista = await resp.json();
+        const ul = document.getElementById('lista');
+        ul.innerHTML = '';
+
+        lista.forEach(p => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <strong>${p.descricao}</strong> (${p.dataInicio} - ${p.dataFim})
+                <a href="formularios?processoId=${p.id}">Criar Formulários</a>
+            `;
+            ul.appendChild(li);
+        });
+    }
+
+    async function criarProcesso() {
+        const dados = {
+            descricao: document.getElementById('desc').value,
+            dataInicio: document.getElementById('inicio').value,
+            dataFim: document.getElementById('fim').value
+        };
+
+        await fetch('../api/admin/processos', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(dados)
+        });
+        carregar();
+    }
+    carregar();
+</script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.sistemaformulario.entities.avaliacao;
 
+import com.sistemaformulario.entities.enums.TipoQuestao;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,6 +37,3 @@ public class Questao {
 
 }
 
-enum TipoQuestao {
-    MULTIPLA_ESCOLHA, OBJETIVA, ABERTA
-}
