@@ -7,7 +7,6 @@ import java.util.List;
 
 public abstract class GenericDAO<T> {
 
-    // Verifique se este nome bate com o <persistence-unit name="..."> do persistence.xml
     private static final EntityManagerFactory emf =
             Persistence.createEntityManagerFactory("projeto-avaliacao-pu");
 
@@ -65,7 +64,6 @@ public abstract class GenericDAO<T> {
     public List<T> findAll() {
         EntityManager em = getEntityManager();
         try {
-            // JPQL genérica
             return em.createQuery("FROM " + entityClass.getSimpleName(), entityClass)
                     .getResultList();
         } finally {

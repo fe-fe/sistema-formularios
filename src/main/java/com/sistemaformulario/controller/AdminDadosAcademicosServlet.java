@@ -1,4 +1,4 @@
-package com.sistemaformulario.controller.admin;
+package com.sistemaformulario.controller;
 
 import com.sistemaformulario.dto.CursoDTO;
 import com.sistemaformulario.dto.DisciplinaDTO;
@@ -32,7 +32,6 @@ public class AdminDadosAcademicosServlet extends HttpServlet {
         } else if (path.contains("/disciplinas")) {
             JsonUtil.sendJson(resp, disciplinaService.listar());
         }
-        // Adicionar listagem de professores se necessário
     }
 
     @Override

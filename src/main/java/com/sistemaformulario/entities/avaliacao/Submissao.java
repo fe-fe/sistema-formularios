@@ -36,12 +36,10 @@ public class Submissao {
     @JoinColumn(name = "turma_id", nullable = false)
     private Turma turma;
 
-    // PODE SER NULL (Se o formulário for anônimo)
     @ManyToOne
     @JoinColumn(name = "aluno_id")
     private Usuario aluno;
 
-    // A lista de respostas agora pertence à Submissão
     @OneToMany(mappedBy = "submissao", cascade = CascadeType.ALL)
     private List<Resposta> respostas = new ArrayList<>();
 }
