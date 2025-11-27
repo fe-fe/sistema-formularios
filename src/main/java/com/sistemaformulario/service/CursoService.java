@@ -1,12 +1,10 @@
 package com.sistemaformulario.service;
 
 import com.sistemaformulario.dao.CursoDAO;
-import com.sistemaformulario.dao.DisciplinaDAO;
 import com.sistemaformulario.dto.CursoDTO;
-import com.sistemaformulario.dto.DisciplinaDTO;
 import com.sistemaformulario.entities.academico.Curso;
-import com.sistemaformulario.entities.academico.Disciplina;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CursoService {
     private CursoDAO cursoDAO = new CursoDAO();
@@ -17,5 +15,15 @@ public class CursoService {
         cursoDAO.create(curso);
     }
 
-    public List<Curso> listar() { return cursoDAO.findAll(); }
+    public List<CursoDTO> listar() {
+        List<Curso> cursos = cursoDAO.findAll();
+        return cursos.stream()
+                .map(curso -> {
+                    CursoDTO dto = new CursoDTO();
+                    dto.setId(curso.getId());
+                    dto.setNome(curso.getNome());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
 }
