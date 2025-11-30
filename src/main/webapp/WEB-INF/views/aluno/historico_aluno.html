@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Histórico</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f7f6; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 900px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid #4a90e2; padding-bottom: 10px; color: #333; margin-top: 0; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #555; font-weight: 600; }
+        tr:hover { background-color: #f1f1f1; }
+
+        .btn-view { background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        .btn-view:hover { background: #138496; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; width: 90%; max-width: 600px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slideDown 0.3s; }
+
+        @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .close { float: right; font-size: 28px; cursor: pointer; color: #aaa; }
+        .close:hover { color: #000; }
+
+        .resp-item { margin-bottom: 15px; border-bottom: 1px dotted #ccc; padding-bottom: 10px; }
+        .enunciado { font-weight: bold; display: block; color: #333; margin-bottom: 5px; }
+        .resposta { color: #007bff; display: block; background: #f0f8ff; padding: 8px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="#" style="text-decoration: none; color: #666; margin-bottom: 10px; display: inline-block;">← Voltar ao Painel</a>
+    <h2>Minhas Avaliações Enviadas</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Data</th>
+            <th>Formulário</th>
+            <th>Turma</th>
+            <th style="width: 120px;">Ações</th>
+        </tr>
+        </thead>
+        <tbody id="tabela-corpo">
+        <tr><td colspan="4" style="text-align:center;">Carregando...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div id="modalDetalhes" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fecharModal()">&times;</span>
+        <h3 style="margin-top:0;">Respostas Enviadas</h3>
+        <hr style="border:0; border-top:1px solid #eee; margin-bottom: 20px;">
+        <div id="conteudo-respostas"></div>
+    </div>
+</div>
+
+<script>
+    // DADOS FALSOS PARA TESTE (SIMULANDO O BANCO DE DADOS)
+    const dadosMock = [
+        {
+            id: 101,
+            dataEnvio: "10/05/2024 14:30",
+            tituloFormulario: "Avaliação de Docência - 1º Bimestre",
+            turmaNome: "Cálculo I - Turma A",
+            respostas: [
+                { enunciado: "Como você avalia a didática?", respostaDada: "Boa" },
+                { enunciado: "O professor esclarece dúvidas?", respostaDada: "Sempre" },
+                { enunciado: "Comentários adicionais:", respostaDada: "Gosto muito das aulas práticas." }
+            ]
+        },
+        {
+            id: 102,
+            dataEnvio: "12/05/2024 09:15",
+            tituloFormulario: "Infraestrutura do Laboratório",
+            turmaNome: "Programação Web - Turma B",
+            respostas: [
+                { enunciado: "Os computadores funcionam?", respostaDada: "Sim, a maioria." },
+                { enunciado: "O ar condicionado funciona?", respostaDada: "Não, está quebrado." }
+            ]
+        }
+    ];
+
+    function carregarHistorico() {
+        // Simulando delay de rede
+        setTimeout(() => {
+            const tbody = document.getElementById('tabela-corpo');
+            tbody.innerHTML = '';
+
+            if (dadosMock.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">Nenhuma avaliação respondida.</td></tr>';
+                return;
+            }
+
+            dadosMock.forEach((sub, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${sub.dataEnvio}</td>
+                        <td>${sub.tituloFormulario}</td>
+                        <td>${sub.turmaNome}</td>
+                        <td><button class="btn-view" onclick="verDetalhes(${index})">Ver Respostas</button></td>
+                    </tr>
+                `;
+            });
+        }, 500);
+    }
+
+    function verDetalhes(index) {
+        const sub = dadosMock[index];
+        const div = document.getElementById('conteudo-respostas');
+        div.innerHTML = '';
+
+        sub.respostas.forEach(r => {
+            div.innerHTML += `
+                <div class="resp-item">
+                    <span class="enunciado">${r.enunciado}</span>
+                    <span class="resposta">${r.respostaDada}</span>
+                </div>
+            `;
+        });
+        document.getElementById('modalDetalhes').style.display = 'block';
+    }
+
+    function fecharModal() {
+        document.getElementById('modalDetalhes').style.display = 'none';
+    }
+
+    // Fecha modal clicando fora
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('modalDetalhes')) {
+            fecharModal();
+        }
+    }
+
+    // Inicia
+    carregarHistorico();
+</script>
+
+</body>
+</html>

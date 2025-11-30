@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Respostas da Turma</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f7f6; display: flex; justify-content: center;}
+        .container { width: 100%; max-width: 1000px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+
+        h2 { margin-top: 0; color: #333; }
+
+        /* Filtros */
+        .filters { background: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px; display: flex; gap: 15px; align-items: flex-end; border: 1px solid #e9ecef; }
+        .form-group { flex: 1; }
+        .filters label { display: block; font-weight: 600; font-size: 0.9em; margin-bottom: 5px; color: #555; }
+        .filters input, .filters select { padding: 10px; width: 100%; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; }
+        .btn-filter { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; height: 42px; }
+        .btn-filter:hover { background: #218838; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #343a40; color: white; border-radius: 4px 4px 0 0; }
+
+        /* Etiquetas */
+        .tag-anonimo { background: #6c757d; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tag-aluno { font-weight: 600; color: #333; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; width: 80%; max-width: 700px; border-radius: 8px; position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #999; }
+
+        .qa-box { background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-left: 4px solid #28a745; border-radius: 4px; }
+        .qa-q { font-weight: bold; margin-bottom: 5px; color: #444; }
+        .qa-a { color: #155724; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="#" style="text-decoration:none; color:#666; display:inline-block; margin-bottom:15px;">← Voltar ao Painel</a>
+    <h2>Visualizar Submissões (Professor)</h2>
+
+    <div class="filters">
+        <div class="form-group">
+            <label>Selecionar Turma</label>
+            <select id="turmaId">
+                <option value="">-- Selecione --</option>
+                <option value="1">Engenharia de Software - 2024/1</option>
+                <option value="2">Banco de Dados - 2024/1</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Selecionar Formulário</label>
+            <select id="formId">
+                <option value="">-- Selecione --</option>
+                <option value="10">Avaliação Parcial</option>
+                <option value="11">Feedback Anônimo</option>
+            </select>
+        </div>
+        <button class="btn-filter" onclick="buscarRespostas()">Filtrar Resultados</button>
+    </div>
+
+    <table id="tabela-resultados" style="display:none;">
+        <thead>
+        <tr>
+            <th>Aluno</th>
+            <th>Data Envio</th>
+            <th>Status</th>
+            <th style="width: 150px;">Ações</th>
+        </tr>
+        </thead>
+        <tbody id="lista">
+        </tbody>
+    </table>
+
+    <div id="msg-vazio" style="text-align:center; padding: 40px; color: #999;">
+        Selecione os filtros acima para ver os dados.
+    </div>
+</div>
+
+<div id="modalResp" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="fecharModal()">&times;</span>
+        <h3 id="modal-titulo" style="margin-top:0;">Respostas</h3>
+        <hr style="margin-bottom:20px; border:0; border-top:1px solid #eee;">
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<script>
+    // DADOS FALSOS PARA TESTE (MOCK)
+    // Vamos simular que o formulário ID 11 é ANÔNIMO e o ID 10 é IDENTIFICADO.
+    const mockBancoDeDados = [
+        {
+            turmaId: "1", formId: "10", // Identificado
+            nomeAluno: "João da Silva",
+            dataEnvio: "15/05/2024 10:00",
+            respostas: [
+                { q: "O conteúdo foi claro?", r: "Sim" },
+                { q: "Nota para o material:", r: "8" }
+            ]
+        },
+        {
+            turmaId: "1", formId: "10", // Identificado
+            nomeAluno: "Maria Oliveira",
+            dataEnvio: "15/05/2024 10:05",
+            respostas: [
+                { q: "O conteúdo foi claro?", r: "Mais ou menos" },
+                { q: "Nota para o material:", r: "7" }
+            ]
+        },
+        {
+            turmaId: "1", formId: "11", // Anônimo
+            nomeAluno: "Anônimo",
+            dataEnvio: "16/05/2024 14:20",
+            respostas: [
+                { q: "Sugestões de melhoria:", r: "O professor fala muito rápido." },
+                { q: "Sente-se motivado?", r: "Não muito." }
+            ]
+        },
+        {
+            turmaId: "1", formId: "11", // Anônimo
+            nomeAluno: "Anônimo",
+            dataEnvio: "16/05/2024 15:00",
+            respostas: [
+                { q: "Sugestões de melhoria:", r: "Gostaria de mais aulas práticas." },
+                { q: "Sente-se motivado?", r: "Sim!" }
+            ]
+        }
+    ];
+
+    let dadosAtuais = []; // Guarda o filtro atual
+
+    function buscarRespostas() {
+        const tid = document.getElementById('turmaId').value;
+        const fid = document.getElementById('formId').value;
+        const btn = document.querySelector('.btn-filter');
+
+        if (!tid || !fid) {
+            alert("Por favor, selecione a Turma e o Formulário.");
+            return;
+        }
+
+        btn.innerText = "Buscando...";
+        btn.disabled = true;
+
+        // Simulando delay
+        setTimeout(() => {
+            // Filtra o "Banco de Dados" fake
+            dadosAtuais = mockBancoDeDados.filter(d => d.turmaId === tid && d.formId === fid);
+
+            const tbody = document.getElementById('lista');
+            const tabela = document.getElementById('tabela-resultados');
+            const msg = document.getElementById('msg-vazio');
+
+            tbody.innerHTML = '';
+
+            if (dadosAtuais.length === 0) {
+                tabela.style.display = 'none';
+                msg.style.display = 'block';
+                msg.innerText = "Nenhuma resposta encontrada para esses filtros.";
+            } else {
+                tabela.style.display = 'table';
+                msg.style.display = 'none';
+
+                dadosAtuais.forEach((item, idx) => {
+                    // Lógica visual para Anônimo vs Identificado
+                    const displayNome = item.nomeAluno === 'Anônimo'
+                        ? `<span class="tag-anonimo">ANÔNIMO</span>`
+                        : `<span class="tag-aluno">${item.nomeAluno}</span>`;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${displayNome}</td>
+                            <td>${item.dataEnvio}</td>
+                            <td><span style="color:green">● Entregue</span></td>
+                            <td><button onclick="abrirModal(${idx})" style="cursor:pointer; padding:5px 10px;">Ler Respostas</button></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            btn.innerText = "Filtrar Resultados";
+            btn.disabled = false;
+        }, 600);
+    }
+
+    function abrirModal(index) {
+        const dados = dadosAtuais[index];
+        const titulo = document.getElementById('modal-titulo');
+        const corpo = document.getElementById('modal-body');
+
+        titulo.innerHTML = dados.nomeAluno === 'Anônimo'
+            ? "Respostas (Anônimo)"
+            : "Respostas de " + dados.nomeAluno;
+
+        corpo.innerHTML = '';
+
+        dados.respostas.forEach(r => {
+            corpo.innerHTML += `
+                <div class="qa-box">
+                    <div class="qa-q">P: ${r.q}</div>
+                    <div class="qa-a">R: ${r.r}</div>
+                </div>
+            `;
+        });
+
+        document.getElementById('modalResp').style.display = 'block';
+    }
+
+    function fecharModal() {
+        document.getElementById('modalResp').style.display = 'none';
+    }
+
+    // Fecha clicando fora
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('modalResp')) {
+            fecharModal();
+        }
+    }
+</script>
+
+</body>
+</html>

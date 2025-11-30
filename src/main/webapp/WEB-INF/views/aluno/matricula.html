@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Matrícula</title>
+    <style>
+        /* CSS: Estilo Limpo e Centralizado */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.9em;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #357abd;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #666;
+            margin-top: 15px;
+            display: inline-block;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .btn-secondary:hover {
+            color: #333;
+            text-decoration: underline;
+        }
+
+        /* Mensagens de Feedback */
+        .feedback {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            display: none; /* Escondido por padrão */
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Entrar em uma Turma</h2>
+    <p>Informe o código identificador (ID) fornecido pelo seu professor.</p>
+
+    <form id="formMatricula">
+        <div class="form-group">
+            <label for="turmaId">ID da Turma</label>
+            <input type="number" id="turmaId" placeholder="Ex: 10" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btnSubmit">Realizar Matrícula</button>
+    </form>
+
+    <div id="mensagem" class="feedback"></div>
+
+    <a href="dashboard" class="btn-secondary">Voltar ao Painel</a>
+</div>
+
+<script>
+    document.getElementById('formMatricula').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const turmaId = document.getElementById('turmaId').value;
+        const msgBox = document.getElementById('mensagem');
+        const btn = document.getElementById('btnSubmit');
+
+        // 1. Resetar visual
+        msgBox.style.display = 'none';
+        msgBox.className = 'feedback';
+        btn.disabled = true;
+        btn.textContent = "Processando...";
+
+        // --- MODO DE TESTE (Simulação) ---
+        // Quando for integrar de verdade, apague este bloco setTimeout e use o fetch abaixo.
+        setTimeout(() => {
+            const simulacaoSucesso = true; // Mude para false para testar o erro visualmente
+
+            if (simulacaoSucesso) {
+                msgBox.textContent = "Sucesso! Você foi matriculado na turma " + turmaId + ".";
+                msgBox.classList.add('success');
+                msgBox.style.display = 'block';
+                document.getElementById('formMatricula').reset();
+            } else {
+                msgBox.textContent = "Erro: Turma não encontrada ou você já está matriculado.";
+                msgBox.classList.add('error');
+                msgBox.style.display = 'block';
+            }
+
+            btn.disabled = false;
+            btn.textContent = "Realizar Matrícula";
+        }, 1000);
+
+        /* // --- MODO INTEGRAÇÃO (Para usar depois) ---
+        try {
+            const response = await fetch('../api/aluno/matricula', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ turmaId: parseInt(turmaId) })
+            });
+
+            const resultado = await response.json();
+
+            if (response.ok) {
+                msgBox.textContent = resultado.mensagem;
+                msgBox.classList.add('success');
+                msgBox.style.display = 'block';
+                document.getElementById('formMatricula').reset();
+                // Opcional: Redirecionar após sucesso
+                // setTimeout(() => window.location.href = 'dashboard', 1500);
+            } else {
+                msgBox.textContent = resultado.erro || "Erro desconhecido.";
+                msgBox.classList.add('error');
+                msgBox.style.display = 'block';
+            }
+        } catch (error) {
+            msgBox.textContent = "Erro de conexão com o servidor.";
+            msgBox.classList.add('error');
+            msgBox.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Realizar Matrícula";
+        }
+        */
+    });
+</script>
+
+</body>
+</html>
