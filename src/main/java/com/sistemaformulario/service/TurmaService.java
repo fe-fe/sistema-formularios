@@ -37,4 +37,8 @@ public class TurmaService {
 
         turmaDAO.create(turma);
     }
+
+    public void matricular(Long turmaId, Long alunoId) {
+        turmaDAO.matricularAluno(turmaId, alunoId);
+    }
 }

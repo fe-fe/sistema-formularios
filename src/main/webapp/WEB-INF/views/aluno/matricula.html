@@ -156,27 +156,6 @@
         btn.disabled = true;
         btn.textContent = "Processando...";
 
-        // --- MODO DE TESTE (Simulação) ---
-        // Quando for integrar de verdade, apague este bloco setTimeout e use o fetch abaixo.
-        setTimeout(() => {
-            const simulacaoSucesso = true; // Mude para false para testar o erro visualmente
-
-            if (simulacaoSucesso) {
-                msgBox.textContent = "Sucesso! Você foi matriculado na turma " + turmaId + ".";
-                msgBox.classList.add('success');
-                msgBox.style.display = 'block';
-                document.getElementById('formMatricula').reset();
-            } else {
-                msgBox.textContent = "Erro: Turma não encontrada ou você já está matriculado.";
-                msgBox.classList.add('error');
-                msgBox.style.display = 'block';
-            }
-
-            btn.disabled = false;
-            btn.textContent = "Realizar Matrícula";
-        }, 1000);
-
-        /* // --- MODO INTEGRAÇÃO (Para usar depois) ---
         try {
             const response = await fetch('../api/aluno/matricula', {
                 method: 'POST',
@@ -192,7 +171,7 @@
                 msgBox.style.display = 'block';
                 document.getElementById('formMatricula').reset();
                 // Opcional: Redirecionar após sucesso
-                // setTimeout(() => window.location.href = 'dashboard', 1500);
+                setTimeout(() => window.location.href = 'dashboard', 1500);
             } else {
                 msgBox.textContent = resultado.erro || "Erro desconhecido.";
                 msgBox.classList.add('error');
@@ -206,7 +185,6 @@
             btn.disabled = false;
             btn.textContent = "Realizar Matrícula";
         }
-        */
     });
 </script>
 

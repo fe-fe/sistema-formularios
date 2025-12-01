@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -23,5 +24,6 @@ public class Curso {
     private String nome;
 
     @OneToMany(mappedBy = "curso")
+    @JsonIgnore
     private List<Disciplina> disciplinas;
 }

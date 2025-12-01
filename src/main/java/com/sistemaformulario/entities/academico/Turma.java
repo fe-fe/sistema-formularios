@@ -1,6 +1,7 @@
 package com.sistemaformulario.entities.academico;
 
 import com.sistemaformulario.entities.acesso.Usuario;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,6 +38,7 @@ public class Turma {
             joinColumns = @JoinColumn(name = "turma_id"),
             inverseJoinColumns = @JoinColumn(name = "aluno_id")
     )
+    @JsonIgnore
     private List<Usuario> alunosMatriculados;
 
 }
