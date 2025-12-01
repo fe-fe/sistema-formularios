@@ -24,4 +24,5 @@ public class JsonUtil {
     public static <T> T readJson(HttpServletRequest req, Class<T> clazz) throws IOException {
         return mapper.readValue(req.getReader(), clazz);
     }
+
 }

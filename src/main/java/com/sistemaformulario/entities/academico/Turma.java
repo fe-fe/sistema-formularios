@@ -21,7 +21,7 @@ public class Turma {
     private Long id;
 
     @Column(nullable = false)
-    private String nome; // Ex: "Turma A - 2024/2"
+    private String nome;
 
     @ManyToOne
     @JoinColumn(name = "disciplina_id", nullable = false)

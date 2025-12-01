@@ -2,6 +2,7 @@ package com.sistemaformulario.service;
 
 import com.sistemaformulario.dao.PerfilDAO;
 import com.sistemaformulario.dao.UsuarioDAO;
+import com.sistemaformulario.dto.AutocadastroDTO;
 import com.sistemaformulario.dto.CadastroDTO;
 import com.sistemaformulario.entities.acesso.Perfil;
 import com.sistemaformulario.entities.acesso.Usuario;
@@ -61,5 +62,28 @@ public class UsuarioService {
         prof.setPerfil(perfilProf);
 
         usuarioDAO.create(prof);
+    }
+
+    public void autocadastrar(AutocadastroDTO dto) {
+
+        if (usuarioDAO.findByEmail(dto.getEmail()) != null) {
+            throw new RuntimeException("Email já cadastrado.");
+        }
+
+        Perfil perfil = perfilDAO.findById(dto.getPerfilId());
+        if (perfil == null) {
+            throw new RuntimeException("Perfil inválido: ID não encontrado.");
+        }
+
+        Usuario novo = new Usuario();
+        novo.setNome(dto.getNome());
+        novo.setEmail(dto.getEmail());
+
+        String senhaHash = BCrypt.hashpw(dto.getSenha(), BCrypt.gensalt());
+        novo.setSenha(senhaHash);
+
+        novo.setPerfil(perfil);
+
+        usuarioDAO.create(novo);
     }
 }

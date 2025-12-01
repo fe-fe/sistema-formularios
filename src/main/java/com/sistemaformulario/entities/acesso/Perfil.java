@@ -21,7 +21,6 @@ public class Perfil {
     @Column(nullable = false, unique = true)
     private String nome;
 
-    // Construtor para facilitar
     public Perfil(String nome) {
         this.nome = nome;
     }

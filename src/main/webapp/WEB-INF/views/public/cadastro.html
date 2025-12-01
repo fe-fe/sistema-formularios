@@ -2,11 +2,11 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastro de Aluno</title>
+    <title>Cadastro</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 350px; }
-        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        input, select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
         button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
         button:hover { background-color: #218838; }
         .error { color: red; font-size: 14px; text-align: center; display: none; margin-bottom: 10px; }
@@ -15,7 +15,7 @@
 </head>
 <body>
 <div class="card">
-    <h2 style="text-align: center;">Novo Aluno</h2>
+    <h2 style="text-align: center;">Novo Cadastro</h2>
     <p id="msg-erro" class="error"></p>
 
     <form id="formCadastro">
@@ -31,6 +31,11 @@
         <label>Confirmar Senha</label>
         <input type="password" id="confirmaSenha" required>
 
+        <label>Perfil</label>
+        <select id="perfil" required>
+            <option value="" disabled selected>Selecione um perfil...</option>
+        </select>
+
         <button type="submit">Cadastrar</button>
     </form>
 
@@ -38,6 +43,38 @@
 </div>
 
 <script>
+
+    async function carregarPerfis() {
+    try {
+        const resp = await fetch("/SistemaFormulario/api/perfis");
+
+        if (!resp.ok) {
+            throw new Error(`Erro ${resp.status}: ${resp.statusText}`);
+        }
+
+        const perfis = await resp.json();
+        const select = document.getElementById("perfil");
+
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+
+        perfis.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.id;
+            opt.textContent = p.nome;
+            select.appendChild(opt);
+        });
+    } catch (error) {
+        console.error("Erro ao carregar perfis:", error);
+        const msgErro = document.getElementById('msg-erro');
+        msgErro.innerText = "Erro ao carregar lista de perfis. Tente recarregar a página.";
+        msgErro.style.display = 'block';
+    }
+}
+
+carregarPerfis();
+
     document.getElementById('formCadastro').addEventListener('submit', async (e) => {
         e.preventDefault();
         const msgErro = document.getElementById('msg-erro');
@@ -47,6 +84,7 @@
         const email = document.getElementById('email').value;
         const senha = document.getElementById('senha').value;
         const confirma = document.getElementById('confirmaSenha').value;
+        const perfilId = document.getElementById('perfil').value;
 
         if (senha !== confirma) {
             msgErro.innerText = "As senhas não conferem.";
@@ -54,10 +92,10 @@
             return;
         }
 
-        const dados = { nome, email, senha };
+        const dados = { nome, email, senha, perfilId };
 
         try {
-            const response = await fetch('api/cadastro', {
+            const response = await fetch('/SistemaFormulario/api/autocadastro', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dados)
