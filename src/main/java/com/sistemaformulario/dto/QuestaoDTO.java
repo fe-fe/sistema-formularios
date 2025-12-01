@@ -8,6 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class QuestaoDTO {
+    private Long id;
     private String enunciado;
     private TipoQuestao tipo; // MULTIPLA_ESCOLHA, OBJETIVA, ABERTA
     private boolean obrigatoria;

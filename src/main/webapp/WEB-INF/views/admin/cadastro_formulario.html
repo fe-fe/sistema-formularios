@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <title>Cadastros Gerais</title>
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Acordeão simples (JS nativo) -->
     <script>
         function toggle(id) {
             const section = document.getElementById(id);
@@ -23,8 +21,8 @@
 </header>
 
 <div class="max-w-5xl mx-auto px-6 py-10">
+    <a href="dash" class="text-blue-600 hover:underline mb-6 block">← Voltar ao Dashboard</a>
 
-    <!-- ACORDEÃO 1 - PROCESSOS AVALIATIVOS -->
     <div class="mb-4 bg-white shadow rounded-xl">
         <button onclick="toggle('processos')"
                 class="w-full text-left p-4 text-lg font-semibold flex justify-between items-center">
@@ -34,21 +32,18 @@
 
         <div id="processos" class="hidden border-t p-5">
 
-            <!-- Formulário CRUD -->
-            <h3 class="text-lg font-semibold mb-3">Criar / Editar Processo Avaliativo</h3>
+            <h3 class="text-lg font-semibold mb-3">Criar Processo Avaliativo</h3>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-                <input type="date" id="datainicio" class="border rounded p-2" placeholder="Data início">
-                <input type="date" id="datafim" class="border rounded p-2" placeholder="Data fim">
+                <input type="datetime-local" id="datainicio" class="border rounded p-2" placeholder="Data início">
+                <input type="datetime-local" id="datafim" class="border rounded p-2" placeholder="Data fim">
 
                 <input type="text" id="descricao" class="border rounded p-2" placeholder="Descrição">
             </div>
 
             <div class="mt-4 flex gap-3">
-                <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar</button>
-                <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Atualizar</button>
-                <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Excluir</button>
+                <button type="button" id="salvarProcessoBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar Novo</button>
             </div>
 
             <h4 class="mt-6 text-md font-semibold">Lista de Processos:</h4>
@@ -62,14 +57,12 @@
                 </tr>
                 </thead>
                 <tbody id="tabelaProcessos">
-                <!-- preenchido dinamicamente -->
                 </tbody>
             </table>
 
         </div>
     </div>
 
-    <!-- ACORDEÃO 2 - FORMULÁRIOS -->
     <div class="mb-4 bg-white shadow rounded-xl">
         <button onclick="toggle('formularios')"
                 class="w-full text-left p-4 text-lg font-semibold flex justify-between items-center">
@@ -77,29 +70,41 @@
             <span>▼</span>
         </button>
 
-        <div id="formularios" class="hidden border-t p-5">
-
+        <div id="formularios" class="border-t p-5">
             <h3 class="text-lg font-semibold mb-3">Criar / Editar Formulário</h3>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <select id="processoSelect" class="border rounded p-2">
                     <option value="">Selecione um processo avaliativo</option>
                 </select>
 
-                <input type="text" id="titulo" class="border rounded p-2" placeholder="Título">
+                <input type="text" id="tituloForm" class="border rounded p-2" placeholder="Título do Formulário">
 
                 <select id="anonimo" class="border rounded p-2">
                     <option value="true">Anônimo</option>
                     <option value="false">Identificado</option>
                 </select>
+
+                <input type="number" id="perfilDestinoId" class="border rounded p-2" placeholder="ID Perfil Destino (ex: 1)" value="1">
             </div>
 
-            <div class="mt-4 flex gap-3">
-                <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar</button>
-                <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Atualizar</button>
-                <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Excluir</button>
+            <div id="editor-questoes-alternativas" class="mt-4 border p-4 bg-gray-50 rounded">
+                <h4 class="font-semibold mb-3">Editor de Questões e Alternativas</h4>
+                <div id="lista-questoes-edicao">
+                    <p class="text-sm text-gray-500">Clique em "Adicionar Questão" para começar a estruturar seu formulário.</p>
+                </div>
+
+                <button type="button" onclick="adicionarQuestaoVazia()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm mt-3 hover:bg-blue-700">+ Adicionar Questão</button>
             </div>
+
+
+            <div class="mt-4 flex gap-3">
+                <button type="button" onclick="limparEdicaoFormulario()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Limpar Campos</button>
+                <button type="button" id="salvarFormBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar Novo</button>
+                <button type="button" id="atualizarFormBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Atualizar</button>
+            </div>
+
+            <input type="hidden" id="formularioSendoEditadoId">
 
             <h4 class="mt-6 text-md font-semibold">Lista de Formulários:</h4>
             <table class="w-full mt-2 border">
@@ -109,6 +114,7 @@
                     <th class="p-2 border">Título</th>
                     <th class="p-2 border">Anônimo</th>
                     <th class="p-2 border">Processo</th>
+                    <th class="p-2 border">Ações</th>
                 </tr>
                 </thead>
                 <tbody id="tabelaFormularios">
@@ -118,190 +124,404 @@
         </div>
     </div>
 
-    <!-- ACORDEÃO 3 - QUESTÕES -->
-    <div class="mb-4 bg-white shadow rounded-xl">
-        <button onclick="toggle('questoes')"
-                class="w-full text-left p-4 text-lg font-semibold flex justify-between items-center">
-            Questões
-            <span>▼</span>
-        </button>
-
-        <div id="questoes" class="hidden border-t p-5">
-
-            <h3 class="text-lg font-semibold mb-3">Criar / Editar Questão</h3>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-                <select id="formularioSelect" class="border rounded p-2">
-                    <option value="">Selecione um formulário</option>
-                </select>
-
-                <select id="tipoQuestao" class="border rounded p-2">
-                    <option value="objetiva">Objetiva</option>
-                    <option value="discursiva">Discursiva</option>
-                </select>
-
-                <select id="obrigatoria" class="border rounded p-2">
-                    <option value="true">Obrigatória</option>
-                    <option value="false">Opcional</option>
-                </select>
-
-            </div>
-
-            <textarea id="enunciado" class="border rounded p-2 w-full mt-4" rows="3" placeholder="Enunciado"></textarea>
-
-            <div class="mt-4 flex gap-3">
-                <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar</button>
-                <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Atualizar</button>
-                <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Excluir</button>
-            </div>
-
-            <h4 class="mt-6 text-md font-semibold">Lista de Questões:</h4>
-            <table class="w-full mt-2 border">
-                <thead class="bg-gray-200">
-                <tr>
-                    <th class="p-2 border">ID</th>
-                    <th class="p-2 border">Enunciado</th>
-                    <th class="p-2 border">Tipo</th>
-                    <th class="p-2 border">Obrigatória</th>
-                </tr>
-                </thead>
-                <tbody id="tabelaQuestoes">
-                </tbody>
-            </table>
-
-        </div>
-    </div>
-
-    <!-- ACORDEÃO 4 - ALTERNATIVAS -->
-    <div class="mb-4 bg-white shadow rounded-xl">
-        <button onclick="toggle('alternativas')"
-                class="w-full text-left p-4 text-lg font-semibold flex justify-between items-center">
-            Alternativas
-            <span>▼</span>
-        </button>
-
-        <div id="alternativas" class="hidden border-t p-5">
-
-            <h3 class="text-lg font-semibold mb-3">Criar / Editar Alternativa</h3>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-                <select id="questaoSelect" class="border rounded p-2">
-                    <option value="">Selecione uma questão</option>
-                </select>
-
-                <input type="number" id="peso" class="border rounded p-2" placeholder="Peso">
-
-                <input type="text" id="textoAlternativa" class="border rounded p-2" placeholder="Texto da alternativa">
-
-            </div>
-
-            <div class="mt-4 flex gap-3">
-                <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar</button>
-                <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Atualizar</button>
-                <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Excluir</button>
-            </div>
-
-            <h4 class="mt-6 text-md font-semibold">Lista de Alternativas:</h4>
-            <table class="w-full mt-2 border">
-                <thead class="bg-gray-200">
-                <tr>
-                    <th class="p-2 border">ID</th>
-                    <th class="p-2 border">Texto</th>
-                    <th class="p-2 border">Peso</th>
-                </tr>
-                </thead>
-                <tbody id="tabelaAlternativas">
-                </tbody>
-            </table>
-
-        </div>
-    </div>
-
 </div>
+
 <script>
-    const API_URL = "http://localhost:8080/SistemaFormulario/api/admin/processos";
+    const API_URL_PROCESSOS = "../api/admin/processos";
+    const API_URL_FORMULARIOS = "../api/admin/formularios";
 
-// ------------------------
-// GET - Buscar processos
-// ------------------------
-async function carregarProcessos() {
-    const tabela = document.getElementById("tabelaProcessos");
-    tabela.innerHTML = "<tr><td colspan='4'>Carregando...</td></tr>";
+    let formularioSendoEditadoId = null;
+    let questaoCounter = 0; // Contador simples para IDs temporários
 
-    try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
-
-        tabela.innerHTML = ""; // limpa a tabela
-
-        data.forEach(proc => {
-            tabela.innerHTML += `
-                <tr>
-                    <td class="border p-2">${proc.id}</td>
-                    <td class="border p-2">${formatarData(proc.dataInicio)}</td>
-                    <td class="border p-2">${formatarData(proc.dataFim)}</td>
-                    <td class="border p-2">${proc.descricao}</td>
-                </tr>
-            `;
-        });
-
-    } catch (e) {
-        tabela.innerHTML = "<tr><td colspan='4' class='text-red-600'>Erro ao carregar.</td></tr>";
-    }
-}
-
-// Converte o array [2025,11,12,0,0] para string "2025-11-12"
-function formatarData(arr) {
-    if (!arr || arr.length < 3) return "-";
-    const [ano, mes, dia] = arr;
-    return `${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
-}
-
-// ------------------------
-// POST - Criar processo
-// ------------------------
-async function salvarProcesso() {
-    const descricao = document.getElementById("descricao").value;
-    const dataInicio = document.getElementById("datainicio").value;
-    const dataFim = document.getElementById("datafim").value;
-
-    if (!descricao || !dataInicio || !dataFim) {
-        alert("Preencha todos os campos!");
-        return;
+    // HELPERS E DOM MANIPULATION
+    function formatarDataSimples(arr) {
+        if (!arr || arr.length < 3) return "-";
+        const [ano, mes, dia] = arr;
+        return `${String(dia).padStart(2,"0")}/${String(mes).padStart(2,"0")}/${ano}`;
     }
 
-    const body = {
-        descricao: descricao,
-        dataInicio: dataInicio + "T00:00:00",
-        dataFim: dataFim + "T00:00:00"
-    };
+    function limparEdicaoFormulario() {
+        formularioSendoEditadoId = null;
+        document.getElementById('tituloForm').value = '';
+        document.getElementById('anonimo').value = 'true';
+        document.getElementById('processoSelect').value = '';
+        document.getElementById('perfilDestinoId').value = '1';
 
-    console.log("Enviando:", body);
+        const containerQuestoes = document.getElementById('lista-questoes-edicao');
+        containerQuestoes.innerHTML = '<p class="text-sm text-gray-500">Clique em "Adicionar Questão" para começar a estruturar seu formulário.</p>';
+        questaoCounter = 0;
 
-    try {
-        await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
+        alert("Campos de Formulário limpos. Pronto para criar um novo.");
+    }
+
+    // Funções de Questões e Alternativas
+
+    function adicionarAlternativaHTML(altData = {}) {
+        const id = altData.id || '';
+        const texto = altData.texto || '';
+        const peso = altData.peso || 1;
+        return `
+            <div class="alternativa-item flex items-center mb-1 space-x-2">
+                <input type="hidden" class="alternativa-id" value="${id}">
+                <input type="text" class="alternativa-texto border rounded p-1 text-sm flex-grow" placeholder="Texto da Alternativa" value="${texto}">
+                <input type="number" class="alternativa-peso border rounded p-1 w-16 text-sm" placeholder="Peso" value="${peso}">
+                <button type="button" onclick="this.closest('.alternativa-item').remove()" class="text-red-400 text-sm">Remover</button>
+            </div>
+        `;
+    }
+
+    function adicionarAlternativa(button) {
+        const lista = button.closest('.alternativas-container').querySelector('.lista-alternativas');
+        lista.insertAdjacentHTML('beforeend', adicionarAlternativaHTML());
+    }
+
+    function toggleAlternativas(selectElement) {
+        const questaoBloco = selectElement.closest('.questao-bloco');
+        const tipo = selectElement.value;
+        const container = questaoBloco.querySelector('.alternativas-container');
+
+        if (tipo === 'ABERTA') {
+            container.style.display = 'none';
+        } else {
+            container.style.display = 'block';
+            // Se for mudar para objetiva/multipla e a lista estiver vazia, adiciona uma alternativa
+            if (questaoBloco.querySelectorAll('.alternativa-item').length === 0) {
+                 const lista = questaoBloco.querySelector('.lista-alternativas');
+                 lista.insertAdjacentHTML('beforeend', adicionarAlternativaHTML());
+            }
+        }
+    }
+
+    function adicionarQuestaoVazia(questaoData = {}) {
+        questaoCounter++;
+        const container = document.getElementById('lista-questoes-edicao');
+
+        // Se for a primeira questão, limpa o texto placeholder
+        if (questaoCounter === 1 && container.children.length === 0) {
+            container.innerHTML = '';
+        }
+
+        const id = questaoData.id || ''; // Se estiver editando, usa o ID existente
+        const tipo = questaoData.tipo || 'ABERTA';
+        const enunciado = questaoData.enunciado || '';
+        const obrigatoria = questaoData.obrigatoria || false;
+
+        const isAlternativaType = (tipo !== 'ABERTA');
+
+        const questaoHTML = `
+            <div class="questao-bloco p-3 border rounded mb-3 bg-white" data-questao-id="${id}">
+                <button type="button" onclick="this.closest('.questao-bloco').remove(); questaoCounter--;" class="float-right text-red-500 hover:text-red-700 font-bold">X</button>
+                <input type="hidden" class="questao-id" value="${id}">
+
+                <label class="block font-semibold mb-1">Enunciado:</label>
+                <input type="text" placeholder="Enunciado da Questão" class="questao-enunciado border rounded p-1 w-full mb-2" value="${enunciado}">
+
+                <div class="flex items-center space-x-4 mb-2">
+                    <select class="questao-tipo border rounded p-1" onchange="toggleAlternativas(this)">
+                        <option value="ABERTA" ${tipo === 'ABERTA' ? 'selected' : ''}>Texto Livre</option>
+                        <option value="OBJETIVA" ${tipo === 'OBJETIVA' ? 'selected' : ''}>Objetiva (1)</option>
+                        <option value="MULTIPLA_ESCOLHA" ${tipo === 'MULTIPLA_ESCOLHA' ? 'selected' : ''}>Múltipla Escolha</option>
+                    </select>
+                    <label>
+                        <input type="checkbox" class="questao-obrigatoria" ${obrigatoria ? 'checked' : ''}> Obrigatória
+                    </label>
+                </div>
+
+                <div class="alternativas-container p-2 border border-dashed mt-2 rounded" style="display: ${isAlternativaType ? 'block' : 'none'};">
+                    <h5 class="font-medium text-sm mb-2">Alternativas (Preencha texto e peso):</h5>
+                    <div class="lista-alternativas">
+                        ${(questaoData.alternativas || []).map(alt => adicionarAlternativaHTML(alt)).join('')}
+                    </div>
+                    <button type="button" onclick="adicionarAlternativa(this)" class="bg-blue-500 text-white px-2 py-1 rounded text-xs mt-2 hover:bg-blue-600">+ Alternativa</button>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', questaoHTML);
+    }
+
+    // CRUD Processos Avaliativos
+    async function carregarProcessos() {
+        const tabela = document.getElementById("tabelaProcessos");
+        const select = document.getElementById("processoSelect");
+        tabela.innerHTML = "<tr><td colspan='4'>Carregando...</td></tr>";
+        select.innerHTML = '<option value="">Selecione um processo avaliativo</option>';
+
+        try {
+            const response = await fetch(API_URL_PROCESSOS);
+            const data = await response.json();
+
+            tabela.innerHTML = "";
+            data.forEach(proc => {
+                // Tabela
+                tabela.innerHTML += `
+                    <tr>
+                        <td class="border p-2">${proc.id}</td>
+                        <td class="border p-2">${formatarDataSimples(proc.dataInicio)}</td>
+                        <td class="border p-2">${formatarDataSimples(proc.dataFim)}</td>
+                        <td class="border p-2">${proc.descricao}</td>
+                    </tr>
+                `;
+                // Select para Formulários
+                select.innerHTML += `<option value="${proc.id}">${proc.descricao} (ID: ${proc.id})</option>`;
+            });
+
+        } catch (e) {
+            tabela.innerHTML = "<tr><td colspan='4' class='text-red-600'>Erro ao carregar processos.</td></tr>";
+        }
+    }
+
+    async function salvarProcesso() {
+        const descricao = document.getElementById("descricao").value;
+        const dataInicio = document.getElementById("datainicio").value;
+        const dataFim = document.getElementById("datafim").value;
+
+        if (!descricao || !dataInicio || !dataFim) {
+            alert("Preencha todos os campos do Processo!");
+            return;
+        }
+
+        const body = {
+            descricao: descricao,
+            dataInicio: dataInicio + ":00", // Adiciona segundos
+            dataFim: dataFim + ":00"
+        };
+
+        try {
+            const resp = await fetch(API_URL_PROCESSOS, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            if (resp.ok || resp.status === 201) {
+                 alert("Processo salvo!");
+                 document.getElementById("descricao").value = '';
+                 await carregarProcessos();
+            } else {
+                const erro = await resp.json();
+                alert("Erro ao salvar processo: " + erro.erro);
+            }
+
+        } catch (e) {
+            alert("Erro na conexão ao salvar processo.");
+        }
+    }
+
+
+    // CRUD Formulários
+
+    function construirFormularioDTO(isUpdate = false) {
+        const questoes = [];
+
+        // 1. Itera sobre cada bloco de questão na interface
+        document.querySelectorAll('.questao-bloco').forEach(questaoBloco => {
+            const tipo = questaoBloco.querySelector('.questao-tipo').value;
+            const alternativas = [];
+
+            // 2. Coleta Alternativas apenas se não for ABERTA
+            if (tipo !== 'ABERTA') {
+                questaoBloco.querySelectorAll('.alternativa-item').forEach(altItem => {
+                    const altTexto = altItem.querySelector('.alternativa-texto').value;
+                    const altPeso = altItem.querySelector('.alternativa-peso').value;
+
+                    if (altTexto) { // Garante que não envia alternativas vazias
+                        alternativas.push({
+                            // ID é necessário para Update de alternativa existente
+                            id: altItem.querySelector('.alternativa-id').value ? parseInt(altItem.querySelector('.alternativa-id').value) : null,
+                            texto: altTexto,
+                            peso: parseInt(altPeso) || 1
+                        });
+                    }
+                });
+            }
+
+            const enunciado = questaoBloco.querySelector('.questao-enunciado').value;
+
+            if (enunciado) { // Garante que não envia questões vazias
+                questoes.push({
+                    // ID é necessário para Update de questão existente
+                    id: questaoBloco.querySelector('.questao-id').value ? parseInt(questaoBloco.querySelector('.questao-id').value) : null,
+                    enunciado: enunciado,
+                    tipo: tipo,
+                    obrigatoria: questaoBloco.querySelector('.questao-obrigatoria').checked,
+                    alternativas: alternativas
+                });
+            }
         });
 
-        alert("Processo salvo!");
+        if (questoes.length === 0) {
+            alert("O formulário precisa ter pelo menos uma questão.");
+            throw new Error("Formulário sem questões.");
+        }
+
+        // 3. Retorna o DTO completo
+        return {
+            titulo: document.getElementById('tituloForm').value,
+            anonimo: document.getElementById('anonimo').value === 'true',
+            processoId: parseInt(document.getElementById('processoSelect').value),
+            perfilDestinoId: parseInt(document.getElementById('perfilDestinoId').value),
+            questoes: questoes
+        };
+    }
+
+
+    async function carregarFormularios() {
+        const tabela = document.getElementById("tabelaFormularios");
+        tabela.innerHTML = "<tr><td colspan='5'>Carregando...</td></tr>";
+
+        try {
+            const response = await fetch(API_URL_FORMULARIOS);
+            const data = await response.json();
+
+            tabela.innerHTML = "";
+            data.forEach(form => {
+                tabela.innerHTML += `
+                    <tr>
+                        <td class="border p-2">${form.id}</td>
+                        <td class="border p-2">${form.titulo}</td>
+                        <td class="border p-2">${form.anonimo ? 'Sim' : 'Não'}</td>
+                        <td class="border p-2">${form.processoAvaliativo ? form.processoAvaliativo.descricao : 'N/A'}</td>
+                        <td class="border p-2">
+                            <button onclick="carregarFormularioParaEdicao(${form.id})" class="bg-blue-500 text-white px-2 py-1 rounded text-sm hover:bg-blue-600">Editar</button>
+                            <button onclick="excluirFormulario(${form.id})" class="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-600">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+        } catch (e) {
+            tabela.innerHTML = "<tr><td colspan='5' class='text-red-600'>Erro ao carregar formulários.</td></tr>";
+            console.error("Erro ao carregar formulários:", e);
+        }
+    }
+
+    async function carregarFormularioParaEdicao(id) {
+        try {
+            const resp = await fetch(`${API_URL_FORMULARIOS}?id=${id}`);
+            if (!resp.ok) {
+                const erro = await resp.json();
+                throw new Error(erro.erro || "Falha ao buscar formulário.");
+            }
+            const form = await resp.json();
+
+            formularioSendoEditadoId = id;
+            document.getElementById('tituloForm').value = form.titulo;
+            document.getElementById('anonimo').value = form.anonimo ? 'true' : 'false';
+            document.getElementById('processoSelect').value = form.processoAvaliativo.id;
+            document.getElementById('perfilDestinoId').value = form.perfilDestino ? form.perfilDestino.id : '1';
+
+            // Carrega as questões no editor
+            const containerQuestoes = document.getElementById('lista-questoes-edicao');
+            containerQuestoes.innerHTML = ''; // Limpa o container
+            questaoCounter = 0; // Reseta o contador
+
+            if (form.questoes && form.questoes.length > 0) {
+                form.questoes.forEach(q => adicionarQuestaoVazia(q));
+                document.getElementById('formularios').classList.remove('hidden');
+            } else {
+                containerQuestoes.innerHTML = '<p class="text-sm text-gray-500">Nenhuma questão encontrada. Adicione uma.</p>';
+            }
+
+            alert(`Formulário ID ${id} carregado para edição. Edite as questões e clique em 'Atualizar'.`);
+
+        } catch(e) {
+            console.error("Erro ao carregar formulário para edição:", e);
+            alert("Erro ao carregar formulário para edição: " + e.message);
+        }
+    }
+
+
+    async function salvarFormulario() {
+        try {
+            const dto = construirFormularioDTO(false);
+            const resp = await fetch(API_URL_FORMULARIOS, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dto)
+            });
+
+            if (resp.ok || resp.status === 201) {
+                alert("Formulário criado com sucesso!");
+                limparEdicaoFormulario();
+                carregarFormularios();
+            } else {
+                const erro = await resp.json();
+                alert("Erro ao salvar formulário: " + erro.erro);
+            }
+        } catch (e) {
+            if (e.message !== "Formulário sem questões.") {
+                console.error(e);
+                alert("Erro de conexão.");
+            }
+        }
+    }
+
+    async function atualizarFormulario() {
+        if (!formularioSendoEditadoId) {
+            alert("Nenhum formulário carregado para edição. Use 'Salvar Novo' ou carregue um para editar.");
+            return;
+        }
+
+        const url = `${API_URL_FORMULARIOS}?id=${formularioSendoEditadoId}`;
+        const method = 'PUT';
+
+        try {
+            const dto = construirFormularioDTO(true);
+            const resp = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dto)
+            });
+
+            if (resp.ok) {
+                alert("Formulário atualizado com sucesso!");
+                limparEdicaoFormulario();
+                carregarFormularios();
+            } else {
+                const erro = await resp.json();
+                alert("Erro ao atualizar formulário: " + erro.erro);
+            }
+        } catch (e) {
+            if (e.message !== "Formulário sem questões.") {
+                console.error(e);
+                alert("Erro de conexão.");
+            }
+        }
+    }
+
+    async function excluirFormulario(id) {
+        if (!confirm(`Tem certeza que deseja excluir o formulário ID ${id}? Esta ação é irreversível e excluirá Questões/Alternativas em cascata.`)) return;
+
+        try {
+            const resp = await fetch(`${API_URL_FORMULARIOS}?id=${id}`, {
+                method: 'DELETE'
+            });
+
+            if (resp.status === 204) {
+                alert(`Formulário ID ${id} excluído com sucesso!`);
+                carregarFormularios();
+            } else {
+                const erro = await resp.json();
+                alert("Erro ao excluir formulário: " + (erro ? erro.erro : resp.statusText));
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erro de conexão.");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
         carregarProcessos();
+        carregarFormularios();
 
-    } catch (e) {
-        alert("Erro ao salvar processo.");
-    }
-}
+        // Vincula os botões
+        document.getElementById("salvarProcessoBtn").addEventListener("click", salvarProcesso);
+        document.getElementById("salvarFormBtn").addEventListener("click", salvarFormulario);
+        document.getElementById("atualizarFormBtn").addEventListener("click", atualizarFormulario);
 
-// Vincula o botão Salvar
-document.addEventListener("DOMContentLoaded", () => {
-    carregarProcessos();
-
-    document.querySelector("button.bg-green-600")
-        .addEventListener("click", salvarProcesso);
-});
+        // Esconde o painel de formulários para forçar o clique/edição
+        document.getElementById('formularios').classList.add('hidden');
+    });
 </script>
 </body>
 </html>
