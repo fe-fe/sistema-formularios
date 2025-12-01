@@ -1,5 +1,6 @@
 package com.sistemaformulario.controller;
 
+import com.sistemaformulario.dto.RespostaEnvioDTO; // <--- Importa o DTO novo
 import com.sistemaformulario.entities.acesso.Usuario;
 import com.sistemaformulario.entities.avaliacao.Formulario;
 import com.sistemaformulario.service.FormularioService;
@@ -22,14 +23,7 @@ public class ResponderFormularioServlet extends HttpServlet {
     private SubmissaoService submissaoService = new SubmissaoService();
     private ParticipacaoService participacaoService = new ParticipacaoService();
 
-    // DTO para receber a resposta do JSON
-    private static class RespostaEnvioDTO {
-        public Long turmaId;
-        public Long formularioId;
-        // Mapa onde Chave = "questao_ID" e Valor = Array de Strings (respostas)
-        public Map<String, String[]> respostas;
-    }
-
+    // GET: Carrega o Formulário para a tela
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Usuario aluno = (Usuario) req.getSession().getAttribute("usuarioLogado");
@@ -41,22 +35,29 @@ public class ResponderFormularioServlet extends HttpServlet {
             return;
         }
 
-        Long turmaId = Long.parseLong(turmaIdStr);
-        Long formularioId = Long.parseLong(formularioIdStr);
+        try {
+            Long turmaId = Long.parseLong(turmaIdStr);
+            Long formularioId = Long.parseLong(formularioIdStr);
 
-        boolean jaRespondeu = participacaoService.verificarParticipacao(aluno.getId(), turmaId, formularioId);
+            // Verifica se já respondeu para não deixar responder 2 vezes
+            if (participacaoService.verificarParticipacao(aluno.getId(), turmaId, formularioId)) {
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                JsonUtil.sendJson(resp, Map.of("erro", "Você já respondeu este formulário."));
+                return;
+            }
 
-        if (jaRespondeu) {
-            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            JsonUtil.sendJson(resp, Map.of("erro", "Você já respondeu este formulário."));
-            return;
+            // Busca o formulário (Agora com EAGER loading e sem Loop infinito)
+            Formulario form = formularioService.buscarPorId(formularioIdStr);
+            JsonUtil.sendJson(resp, form);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            JsonUtil.sendJson(resp, Map.of("erro", "Erro ao carregar dados."));
         }
-
-        Formulario form = formularioService.buscarPorId(formularioIdStr);
-        // Retorna o objeto formulário completo
-        JsonUtil.sendJson(resp, form);
     }
 
+    // POST: Recebe as respostas do aluno
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Usuario aluno = (Usuario) req.getSession().getAttribute("usuarioLogado");
@@ -67,27 +68,26 @@ public class ResponderFormularioServlet extends HttpServlet {
         }
 
         try {
-            // Lendo o JSON enviado pelo frontend
+            // LÊ O JSON USANDO O DTO NOVO
             RespostaEnvioDTO dto = JsonUtil.readJson(req, RespostaEnvioDTO.class);
 
-            // CONVERSÃO NECESSÁRIA:
-            // O Service espera um Map<String, String[]> parecido com o request.getParameterMap()
-            // Vamos recriar esse mapa manualmente a partir do DTO para reaproveitar o Service existente.
+            // Converte o DTO para o formato que o Service espera (Map)
+            Map<String, String[]> parametros = new HashMap<>();
+            parametros.put("turmaId", new String[]{String.valueOf(dto.getTurmaId())});
+            parametros.put("formularioId", new String[]{String.valueOf(dto.getFormularioId())});
 
-            Map<String, String[]> parametrosConvertidos = new HashMap<>();
-            parametrosConvertidos.put("turmaId", new String[]{String.valueOf(dto.turmaId)});
-            parametrosConvertidos.put("formularioId", new String[]{String.valueOf(dto.formularioId)});
-
-            if (dto.respostas != null) {
-                parametrosConvertidos.putAll(dto.respostas);
+            if (dto.getRespostas() != null) {
+                parametros.putAll(dto.getRespostas());
             }
 
-            submissaoService.processarEnvio(aluno, parametrosConvertidos);
+            // Processa e Salva
+            submissaoService.processarEnvio(aluno, parametros);
 
             resp.setStatus(HttpServletResponse.SC_OK);
             JsonUtil.sendJson(resp, Map.of("mensagem", "Sucesso"));
 
         } catch (Exception e) {
+            e.printStackTrace(); // Mostra erro no console do servidor se houver
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             JsonUtil.sendJson(resp, Map.of("erro", e.getMessage()));
         }

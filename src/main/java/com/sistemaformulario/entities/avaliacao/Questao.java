@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 @Entity
@@ -30,9 +30,10 @@ public class Questao {
 
     @ManyToOne
     @JoinColumn(name = "formulario_id")
+    @JsonIgnore
     private Formulario formulario;
 
-    @OneToMany(mappedBy = "questao", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "questao", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Alternativa> alternativas;
 
 }

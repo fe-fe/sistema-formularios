@@ -7,10 +7,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/aluno/responder/teste")
-public class ResponderAvaliacaoViewServlet extends HttpServlet {
+@WebServlet("/aluno/responder")
+public class ResponderFormViewServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("/WEB-INF/views/aluno/responder.html").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/aluno/reponderForm.html").forward(req, resp);
     }
 }

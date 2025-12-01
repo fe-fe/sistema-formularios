@@ -16,7 +16,7 @@ public class ParticipacaoDAO extends GenericDAO<com.sistemaformulario.entities.r
         EntityManager em = getEntityManager();
         try {
             String jpql = """
-                SELECT COUNT(c) FROM ControleParticipacao c 
+                SELECT COUNT(c) FROM Participacao c 
                 WHERE c.aluno.id = :alunoId 
                 AND c.turma.id = :turmaId 
                 AND c.formulario.id = :formId

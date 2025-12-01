@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Responder Avaliação</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; max-width: 800px; margin: auto; background-color: #f9f9f9; }
+        h1 { color: #333; }
+        .questao-box { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .enunciado { font-weight: bold; margin-bottom: 15px; display: block; font-size: 1.1em; color: #444; }
+        textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        label { display: block; margin-bottom: 8px; cursor: pointer; }
+        button { background-color: #28a745; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 4px; cursor: pointer; margin-top: 20px; }
+        button:hover { background-color: #218838; }
+        .aviso-anonimo { background: #e2e3e5; color: #383d41; padding: 10px; border-radius: 4px; margin-bottom: 20px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+<h1 id="titulo-form">Carregando Formulário...</h1>
+<div id="contexto-anonimo" class="aviso-anonimo" style="display:none;"></div>
+
+<div id="container-questoes"></div>
+
+<button id="btn-enviar" onclick="enviarResposta()">Enviar Avaliação</button>
+<p id="msg-erro" style="color: red; margin-top: 10px;"></p>
+
+<script>
+    // Recupera IDs da URL
+    const params = new URLSearchParams(window.location.search);
+    const turmaId = params.get('turmaId');
+    const formularioId = params.get('formularioId');
+
+    async function carregarFormulario() {
+        try {
+            // CONEXÃO REAL: Chama o seu Servlet Java
+            const response = await fetch(`../api/aluno/responder?turmaId=${turmaId}&formularioId=${formularioId}`);
+
+            if (response.status === 403) {
+                document.body.innerHTML = "<h1>Você já respondeu este formulário!</h1><a href='dashboard'>Voltar</a>";
+                return;
+            }
+
+            if (!response.ok) {
+                alert("Erro ao buscar formulário ou formulário não encontrado.");
+                return;
+            }
+
+            const form = await response.json();
+
+            document.getElementById('titulo-form').innerText = form.titulo;
+            const aviso = document.getElementById('contexto-anonimo');
+
+            if (form.anonimo) {
+                aviso.innerText = "🔒 Resposta Anônima";
+                aviso.style.display = 'block';
+            } else {
+                aviso.innerText = "👤 Resposta Identificada";
+                aviso.style.display = 'block';
+            }
+
+            const container = document.getElementById('container-questoes');
+            container.innerHTML = "";
+
+            form.questoes.forEach((q, index) => {
+                const div = document.createElement('div');
+                div.className = 'questao-box';
+                div.dataset.id = q.id;
+                div.dataset.tipo = q.tipo;
+
+                let html = `<span class="enunciado">${index + 1}. ${q.enunciado} ${q.obrigatoria ? '*' : ''}</span>`;
+
+                if (q.tipo === 'ABERTA') {
+                    html += `<textarea name="q_${q.id}" rows="4" style="width: 100%"></textarea>`;
+                } else if (q.tipo === 'OBJETIVA') {
+                    q.alternativas.forEach(alt => {
+                        html += `<label><input type="radio" name="q_${q.id}" value="${alt.id}"> ${alt.texto}</label><br>`;
+                    });
+                } else if (q.tipo === 'MULTIPLA_ESCOLHA') {
+                    q.alternativas.forEach(alt => {
+                        html += `<label><input type="checkbox" name="q_${q.id}" value="${alt.id}"> ${alt.texto}</label><br>`;
+                    });
+                }
+                div.innerHTML = html;
+                container.appendChild(div);
+            });
+
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao carregar formulário do servidor.");
+        }
+    }
+
+    async function enviarResposta() {
+        const respostasMap = {};
+        const questoesDivs = document.querySelectorAll('.questao-box');
+
+        questoesDivs.forEach(div => {
+            const id = div.dataset.id;
+            const tipo = div.dataset.tipo;
+            const key = `questao_${id}`;
+
+            if (tipo === 'ABERTA') {
+                const texto = div.querySelector('textarea').value;
+                if (texto) respostasMap[key] = [texto];
+            } else {
+                const marcados = Array.from(div.querySelectorAll('input:checked')).map(i => i.value);
+                if (marcados.length > 0) respostasMap[key] = marcados;
+            }
+        });
+
+        const payload = {
+            turmaId: parseInt(turmaId),
+            formularioId: parseInt(formularioId),
+            respostas: respostasMap
+        };
+
+        try {
+            // ENVIO REAL: Manda o JSON para o Java processar e salvar no Banco
+            const response = await fetch('../api/aluno/responder', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert("Enviado com sucesso!");
+                window.location.href = 'dashboard';
+            } else {
+                const erro = await response.json();
+                document.getElementById('msg-erro').innerText = erro.erro || "Erro ao enviar.";
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erro de conexão.");
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', carregarFormulario);
+</script>
+</body>
+</html>

@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,6 +25,7 @@ public class ProcessoAvaliativo {
     private LocalDateTime dataFim;
 
     @OneToMany(mappedBy = "processoAvaliativo")
+    @JsonIgnore
     private List<Formulario> formularios;
 
 }

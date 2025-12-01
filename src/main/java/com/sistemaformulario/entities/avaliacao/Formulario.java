@@ -33,7 +33,7 @@ public class Formulario {
     @JoinColumn(name = "perfil_alvo_id")
     private Perfil perfilDestino;
 
-    @OneToMany(mappedBy = "formulario", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "formulario", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Questao> questoes;
 
 }
