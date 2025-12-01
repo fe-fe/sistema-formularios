@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Login</title>
 
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -69,7 +68,7 @@
                 if (usuario.perfil.nome === 'ALUNO') {
                     window.location.href = 'aluno/dashboard';
                 } else if (usuario.perfil.nome === 'ADMINISTRADOR') {
-                    window.location.href = 'admin/cadastros';
+                    window.location.href = 'admin/dash';
                 } else {
                     window.location.href = 'relatorios/visualizar';
                 }

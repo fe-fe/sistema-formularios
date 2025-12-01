@@ -1,244 +1,307 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Novo Formulário</title>
-    <style>
-        /* Estilo Limpo e Profissional */
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    <title>Cadastros Gerais</title>
 
-        /* Cabeçalho */
-        header { border-bottom: 2px solid #007bff; padding-bottom: 15px; margin-bottom: 25px; }
-        h2 { margin: 0; color: #333; }
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-        /* Grupos de Inputs */
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; color: #495057; }
-        input[type="text"], select { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; }
-
-        /* Card da Questão */
-        .questao-card {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-left: 5px solid #007bff; /* Destaque visual */
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            position: relative;
-            animation: fadeIn 0.3s;
+    <!-- Acordeão simples (JS nativo) -->
+    <script>
+        function toggle(id) {
+            const section = document.getElementById(id);
+            section.classList.toggle("hidden");
         }
-
-        /* Botão de Remover (X) */
-        .btn-remove { position: absolute; top: 10px; right: 10px; color: #dc3545; background: none; border: none; font-weight: bold; cursor: pointer; font-size: 1.1em; }
-        .btn-remove:hover { color: #a71d2a; }
-
-        /* Área de Alternativas */
-        .area-alternativas { background: #e9ecef; padding: 10px; margin-top: 10px; border-radius: 4px; display: none; }
-        .hint { font-size: 0.85em; color: #6c757d; margin-bottom: 5px; display: block; }
-
-        /* Checkboxes Customizados */
-        .chk-group { display: flex; align-items: center; gap: 8px; margin-top: 10px; background: #e2e6ea; padding: 8px 12px; border-radius: 20px; width: fit-content; }
-        .chk-group input { width: 16px; height: 16px; margin: 0; }
-
-        /* Botões */
-        .btn { padding: 12px 20px; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s; }
-        .btn-add { background-color: #17a2b8; color: white; margin-bottom: 20px; }
-        .btn-add:hover { background-color: #138496; }
-        .btn-save { background-color: #28a745; color: white; }
-        .btn-save:hover { background-color: #218838; }
-        .btn-back { display: inline-block; margin-bottom: 15px; color: #6c757d; text-decoration: none; font-weight: 600; }
-        .btn-back:hover { text-decoration: underline; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    </script>
 </head>
-<body>
 
-<div class="container">
-    <a href="processos" class="btn-back">← Voltar para Lista de Processos</a>
+<body class="bg-gray-100 min-h-screen">
 
-    <header>
-        <h2>Criar Formulário de Avaliação</h2>
-        <small style="color: #666;">Defina as perguntas e configurações iniciais.</small>
-    </header>
+<header class="bg-slate-800 text-white py-6 text-center text-2xl font-semibold shadow">
+    Cadastros Gerais
+</header>
 
-    <div class="form-group">
-        <label>Título do Formulário</label>
-        <input type="text" id="titulo" placeholder="Ex: Avaliação Institucional 2024/2" required>
-    </div>
+<div class="max-w-5xl mx-auto px-6 py-10">
 
-    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-        <div style="flex: 1;">
-            <label>Público Alvo (Perfil)</label>
-            <select id="perfilDestino">
-                <option value="4">Aluno (Avalia Professores/Turmas)</option>
-                <option value="2">Professor (Autoavaliação)</option>
-            </select>
-        </div>
-        <div style="flex: 1; display: flex; align-items: flex-end;">
-            <label class="chk-group">
-                <input type="checkbox" id="anonimo">
-                Respostas Anônimas
-            </label>
-        </div>
-    </div>
+    <!-- ACORDEÃO 1 - PROCESSOS AVALIATIVOS -->
+    <div class="mb-4 bg-white shadow rounded-xl">
+        <button onclick="toggle('processos')"
+                class="w-full text-left p-4 text-lg font-semibold flex justify-between items-center">
+            Processos Avaliativos
+            <span>▼</span>
+        </button>
 
-    <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0;">
+        <div id="processos" class="hidden border-t p-5">
 
-    <h3>Questões</h3>
-    <div id="lista-questoes">
-    </div>
+            <!-- Formulário CRUD -->
+            <h3 class="text-lg font-semibold mb-3">Criar / Editar Processo Avaliativo</h3>
 
-    <button type="button" class="btn btn-add" onclick="novaQuestao()">+ Adicionar Questão</button>
-    <button type="button" class="btn btn-save" onclick="salvarFormulario()">Salvar Formulário</button>
-</div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-<script>
-    // Recupera ID do Processo da URL
-    const params = new URLSearchParams(window.location.search);
-    const processoId = params.get('processoId');
+                <input type="date" id="datainicio" class="border rounded p-2" placeholder="Data início">
+                <input type="date" id="datafim" class="border rounded p-2" placeholder="Data fim">
 
-    // Validação inicial
-    if (!processoId) {
-        alert("Processo Avaliativo não informado. Retornando...");
-        window.location.href = 'processos';
-    }
-
-    // Função para adicionar HTML de uma nova questão
-    function novaQuestao() {
-        const container = document.getElementById('lista-questoes');
-        const id = Date.now(); // ID temporário visual
-
-        const html = `
-            <div class="questao-card" id="q-${id}">
-                <button class="btn-remove" onclick="removerQuestao('${id}')" title="Remover questão">×</button>
-
-                <div class="form-group">
-                    <label>Enunciado da Pergunta:</label>
-                    <input type="text" class="q-enunciado" placeholder="Digite a pergunta aqui..." required>
-                </div>
-
-                <div style="display: flex; gap: 15px;">
-                    <div style="flex: 2;">
-                        <label>Tipo de Resposta:</label>
-                        <select class="q-tipo" onchange="alternarOpcoes('${id}', this.value)">
-                            <option value="OBJETIVA">Objetiva (Escolha Única)</option>
-                            <option value="MULTIPLA_ESCOLHA">Múltipla Escolha (Várias)</option>
-                            <option value="ABERTA">Texto Livre (Aberta)</option>
-                        </select>
-                    </div>
-                    <div style="flex: 1; display: flex; align-items: flex-end;">
-                        <label class="chk-group" style="margin-top:0; width:100%;">
-                            <input type="checkbox" class="q-obrigatoria"> Obrigatória
-                        </label>
-                    </div>
-                </div>
-
-                <div id="opcoes-${id}" class="area-alternativas" style="display: block;">
-                    <span class="hint">Digite as opções separadas por vírgula:</span>
-                    <input type="text" class="q-alternativas" placeholder="Ex: Excelente, Bom, Regular, Ruim">
-                </div>
+                <input type="text" id="descricao" class="border rounded p-2" placeholder="Descrição">
             </div>
-        `;
 
-        container.insertAdjacentHTML('beforeend', html);
-    }
+            <div class="mt-4 flex gap-3">
+                <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar</button>
+                <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Atualizar</button>
+                <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Excluir</button>
+            </div>
 
-    // Controla visibilidade das alternativas (RF09)
-    function alternarOpcoes(id, tipo) {
-        const div = document.getElementById(`opcoes-${id}`);
-        if (tipo === 'ABERTA') {
-            div.style.display = 'none';
-        } else {
-            div.style.display = 'block';
-            // Foca no input se reaparecer
-            div.querySelector('input').focus();
-        }
-    }
+            <h4 class="mt-6 text-md font-semibold">Lista de Processos:</h4>
+            <table class="w-full mt-2 border">
+                <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-2 border">ID</th>
+                    <th class="p-2 border">Início</th>
+                    <th class="p-2 border">Fim</th>
+                    <th class="p-2 border">Descrição</th>
+                </tr>
+                </thead>
+                <tbody id="tabelaProcessos">
+                <!-- preenchido dinamicamente -->
+                </tbody>
+            </table>
 
-    function removerQuestao(id) {
-        const card = document.getElementById(`q-${id}`);
-        card.style.opacity = '0';
-        setTimeout(() => card.remove(), 200); // Efeito visual rápido
-    }
+        </div>
+    </div>
 
-    // Envio dos dados para a API (Servlet)
-    async function salvarFormulario() {
-        const btn = document.querySelector('.btn-save');
-        const titulo = document.getElementById('titulo').value;
+    <!-- ACORDEÃO 2 - FORMULÁRIOS -->
+    <div class="mb-4 bg-white shadow rounded-xl">
+        <button onclick="toggle('formularios')"
+                class="w-full text-left p-4 text-lg font-semibold flex justify-between items-center">
+            Formulários
+            <span>▼</span>
+        </button>
 
-        if (!titulo.trim()) {
-            alert("Por favor, dê um título ao formulário.");
-            return;
-        }
+        <div id="formularios" class="hidden border-t p-5">
 
-        const questoesDOM = document.querySelectorAll('.questao-card');
-        if (questoesDOM.length === 0) {
-            alert("Adicione pelo menos uma questão.");
-            return;
-        }
+            <h3 class="text-lg font-semibold mb-3">Criar / Editar Formulário</h3>
 
-        const questoesDTO = [];
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
-        // Varre os cards HTML para montar o JSON
-        questoesDOM.forEach(card => {
-            const tipo = card.querySelector('.q-tipo').value;
-            const textoAlts = card.querySelector('.q-alternativas').value;
+                <select id="processoSelect" class="border rounded p-2">
+                    <option value="">Selecione um processo avaliativo</option>
+                </select>
 
-            let listaAlternativas = [];
-            // Processa alternativas apenas se não for questão aberta (RF08)
-            if (tipo !== 'ABERTA' && textoAlts.trim().length > 0) {
-                listaAlternativas = textoAlts.split(',').map(t => ({
-                    texto: t.trim(),
-                    peso: 1
-                }));
-            }
+                <input type="text" id="titulo" class="border rounded p-2" placeholder="Título">
 
-            questoesDTO.push({
-                enunciado: card.querySelector('.q-enunciado').value,
-                tipo: tipo,
-                obrigatoria: card.querySelector('.q-obrigatoria').checked,
-                alternativas: listaAlternativas
-            });
+                <select id="anonimo" class="border rounded p-2">
+                    <option value="true">Anônimo</option>
+                    <option value="false">Identificado</option>
+                </select>
+            </div>
+
+            <div class="mt-4 flex gap-3">
+                <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar</button>
+                <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Atualizar</button>
+                <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Excluir</button>
+            </div>
+
+            <h4 class="mt-6 text-md font-semibold">Lista de Formulários:</h4>
+            <table class="w-full mt-2 border">
+                <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-2 border">ID</th>
+                    <th class="p-2 border">Título</th>
+                    <th class="p-2 border">Anônimo</th>
+                    <th class="p-2 border">Processo</th>
+                </tr>
+                </thead>
+                <tbody id="tabelaFormularios">
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- ACORDEÃO 3 - QUESTÕES -->
+    <div class="mb-4 bg-white shadow rounded-xl">
+        <button onclick="toggle('questoes')"
+                class="w-full text-left p-4 text-lg font-semibold flex justify-between items-center">
+            Questões
+            <span>▼</span>
+        </button>
+
+        <div id="questoes" class="hidden border-t p-5">
+
+            <h3 class="text-lg font-semibold mb-3">Criar / Editar Questão</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                <select id="formularioSelect" class="border rounded p-2">
+                    <option value="">Selecione um formulário</option>
+                </select>
+
+                <select id="tipoQuestao" class="border rounded p-2">
+                    <option value="objetiva">Objetiva</option>
+                    <option value="discursiva">Discursiva</option>
+                </select>
+
+                <select id="obrigatoria" class="border rounded p-2">
+                    <option value="true">Obrigatória</option>
+                    <option value="false">Opcional</option>
+                </select>
+
+            </div>
+
+            <textarea id="enunciado" class="border rounded p-2 w-full mt-4" rows="3" placeholder="Enunciado"></textarea>
+
+            <div class="mt-4 flex gap-3">
+                <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar</button>
+                <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Atualizar</button>
+                <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Excluir</button>
+            </div>
+
+            <h4 class="mt-6 text-md font-semibold">Lista de Questões:</h4>
+            <table class="w-full mt-2 border">
+                <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-2 border">ID</th>
+                    <th class="p-2 border">Enunciado</th>
+                    <th class="p-2 border">Tipo</th>
+                    <th class="p-2 border">Obrigatória</th>
+                </tr>
+                </thead>
+                <tbody id="tabelaQuestoes">
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- ACORDEÃO 4 - ALTERNATIVAS -->
+    <div class="mb-4 bg-white shadow rounded-xl">
+        <button onclick="toggle('alternativas')"
+                class="w-full text-left p-4 text-lg font-semibold flex justify-between items-center">
+            Alternativas
+            <span>▼</span>
+        </button>
+
+        <div id="alternativas" class="hidden border-t p-5">
+
+            <h3 class="text-lg font-semibold mb-3">Criar / Editar Alternativa</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+                <select id="questaoSelect" class="border rounded p-2">
+                    <option value="">Selecione uma questão</option>
+                </select>
+
+                <input type="number" id="peso" class="border rounded p-2" placeholder="Peso">
+
+                <input type="text" id="textoAlternativa" class="border rounded p-2" placeholder="Texto da alternativa">
+
+            </div>
+
+            <div class="mt-4 flex gap-3">
+                <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Salvar</button>
+                <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Atualizar</button>
+                <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Excluir</button>
+            </div>
+
+            <h4 class="mt-6 text-md font-semibold">Lista de Alternativas:</h4>
+            <table class="w-full mt-2 border">
+                <thead class="bg-gray-200">
+                <tr>
+                    <th class="p-2 border">ID</th>
+                    <th class="p-2 border">Texto</th>
+                    <th class="p-2 border">Peso</th>
+                </tr>
+                </thead>
+                <tbody id="tabelaAlternativas">
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+<script>
+    const API_URL = "http://localhost:8080/SistemaFormulario/api/admin/processos";
+
+// ------------------------
+// GET - Buscar processos
+// ------------------------
+async function carregarProcessos() {
+    const tabela = document.getElementById("tabelaProcessos");
+    tabela.innerHTML = "<tr><td colspan='4'>Carregando...</td></tr>";
+
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        tabela.innerHTML = ""; // limpa a tabela
+
+        data.forEach(proc => {
+            tabela.innerHTML += `
+                <tr>
+                    <td class="border p-2">${proc.id}</td>
+                    <td class="border p-2">${formatarData(proc.dataInicio)}</td>
+                    <td class="border p-2">${formatarData(proc.dataFim)}</td>
+                    <td class="border p-2">${proc.descricao}</td>
+                </tr>
+            `;
         });
 
-        const payload = {
-            titulo: titulo,
-            anonimo: document.getElementById('anonimo').checked,
-            processoId: parseInt(processoId),
-            perfilDestinoId: parseInt(document.getElementById('perfilDestino').value),
-            questoes: questoesDTO
-        };
-
-        // Envio
-        try {
-            btn.disabled = true;
-            btn.innerText = "Salvando...";
-
-            const response = await fetch('../api/admin/formularios', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (response.ok) {
-                alert("Formulário criado com sucesso!");
-                window.location.href = 'processos'; // Volta para a listagem
-            } else {
-                const erro = await response.json();
-                alert("Erro ao salvar: " + (erro.erro || "Erro desconhecido"));
-                btn.disabled = false;
-                btn.innerText = "Salvar Formulário";
-            }
-        } catch (e) {
-            console.error(e);
-            alert("Erro de conexão com o servidor.");
-            btn.disabled = false;
-            btn.innerText = "Salvar Formulário";
-        }
+    } catch (e) {
+        tabela.innerHTML = "<tr><td colspan='4' class='text-red-600'>Erro ao carregar.</td></tr>";
     }
-</script>
+}
 
+// Converte o array [2025,11,12,0,0] para string "2025-11-12"
+function formatarData(arr) {
+    if (!arr || arr.length < 3) return "-";
+    const [ano, mes, dia] = arr;
+    return `${ano}-${String(mes).padStart(2,"0")}-${String(dia).padStart(2,"0")}`;
+}
+
+// ------------------------
+// POST - Criar processo
+// ------------------------
+async function salvarProcesso() {
+    const descricao = document.getElementById("descricao").value;
+    const dataInicio = document.getElementById("datainicio").value;
+    const dataFim = document.getElementById("datafim").value;
+
+    if (!descricao || !dataInicio || !dataFim) {
+        alert("Preencha todos os campos!");
+        return;
+    }
+
+    const body = {
+        descricao: descricao,
+        dataInicio: dataInicio + "T00:00:00",
+        dataFim: dataFim + "T00:00:00"
+    };
+
+    console.log("Enviando:", body);
+
+    try {
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+
+        alert("Processo salvo!");
+        carregarProcessos();
+
+    } catch (e) {
+        alert("Erro ao salvar processo.");
+    }
+}
+
+// Vincula o botão Salvar
+document.addEventListener("DOMContentLoaded", () => {
+    carregarProcessos();
+
+    document.querySelector("button.bg-green-600")
+        .addEventListener("click", salvarProcesso);
+});
+</script>
 </body>
 </html>
