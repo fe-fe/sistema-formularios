@@ -1,7 +1,10 @@
 package com.sistemaformulario.controller;
 
+import com.sistemaformulario.dto.DashboardItemDTO;
 import com.sistemaformulario.entities.academico.Turma;
 import com.sistemaformulario.entities.acesso.Usuario;
+import com.sistemaformulario.entities.avaliacao.Formulario;
+import com.sistemaformulario.service.FormularioService;
 import com.sistemaformulario.service.TurmaService;
 import com.sistemaformulario.util.JsonUtil;
 import jakarta.servlet.ServletException;
@@ -10,6 +13,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +21,7 @@ import java.util.Map;
 public class PainelAlunoServlet extends HttpServlet {
 
     private TurmaService turmaService = new TurmaService();
+    private FormularioService formularioService = new FormularioService();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -29,8 +34,13 @@ public class PainelAlunoServlet extends HttpServlet {
         }
 
         List<Turma> turmas = turmaService.buscarTurmasPorAluno(aluno.getId());
+        List<DashboardItemDTO> dashboardData = new ArrayList<>();
 
-        // Dica: Se o JSON falhar por recursão infinita, crie um DTO simples aqui e converta a lista
-        JsonUtil.sendJson(resp, turmas);
+        for (Turma t : turmas) {
+            List<Formulario> pendentes = formularioService.buscarPendentes(aluno.getId(), t.getId());
+            dashboardData.add(new DashboardItemDTO(t, pendentes));
+        }
+
+        JsonUtil.sendJson(resp, dashboardData);
     }
 }

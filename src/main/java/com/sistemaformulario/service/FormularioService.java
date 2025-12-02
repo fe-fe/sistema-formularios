@@ -136,4 +136,8 @@ public class FormularioService {
 
         formularioDAO.create(formulario);
     }
+
+    public List<Formulario> buscarPendentes(Long alunoId, Long turmaId) {
+        return formularioDAO.buscarFormulariosDisponiveis(alunoId, turmaId);
+    }
 }

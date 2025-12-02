@@ -36,25 +36,40 @@
                 return;
             }
 
-            const turmas = await response.json();
+            const data = await response.json();
             const tbody = document.getElementById('tabela-corpo');
             tbody.innerHTML = '';
 
-            if (turmas.length === 0) {
+            if (data.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4">Nenhuma turma encontrada.</td></tr>';
                 return;
             }
 
-            turmas.forEach(t => {
+            data.forEach(item => {
+                const turma = item.turma;
+                const forms = item.formulariosPendentes;
+
+                let botoesHtml = '';
+                if (forms.length > 0) {
+                    forms.forEach(f => {
+                        botoesHtml += `
+                            <a href="responder?turmaId=${turma.id}&formularioId=${f.id}"
+                               style="display:inline-block; margin: 2px; padding: 5px 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 0.9em;">
+                               📝 ${f.titulo}
+                            </a><br>
+                        `;
+                    });
+                } else {
+                    botoesHtml = '<span style="color: green;">✔ Tudo respondido</span>';
+                }
+
                 const tr = document.createElement('tr');
-                // Exemplo de link hardcoded para Formulario ID 1.
-                // No mundo real, você teria um endpoint para listar avaliações pendentes.
                 tr.innerHTML = `
-                    <td>${t.nome}</td>
-                    <td>${t.disciplina.nome}</td>
-                    <td>${t.professor.nome}</td>
+                    <td>${turma.nome}</td>
+                    <td>${turma.disciplina.nome}</td>
+                    <td>${turma.professor.nome}</td>
                     <td>
-                        <a href="responder?turmaId=${t.id}&formularioId=1">Responder</a>
+                        ${botoesHtml}
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -65,7 +80,6 @@
         }
     }
 
-    // Carrega ao abrir a página
     document.addEventListener('DOMContentLoaded', carregarTurmas);
 </script>
 </body>
