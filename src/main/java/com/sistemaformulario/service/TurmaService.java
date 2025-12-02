@@ -16,7 +16,6 @@ public class TurmaService {
     private DisciplinaDAO disciplinaDAO = new DisciplinaDAO();
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
 
-    // RF12 - O aluno deve ter acesso apenas às avaliações das turmas em que está matriculado
     public List<Turma> buscarTurmasPorAluno(Long alunoId) {
         return turmaDAO.findByAlunoId(alunoId);
     }
@@ -36,6 +35,10 @@ public class TurmaService {
         turma.setProfessor(professor);
 
         turmaDAO.create(turma);
+    }
+
+    public List<Turma> listarTodas() {
+        return turmaDAO.findAll();
     }
 
     public void matricular(Long turmaId, Long alunoId) {

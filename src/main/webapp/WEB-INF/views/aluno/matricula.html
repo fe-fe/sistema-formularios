@@ -131,7 +131,10 @@
     <form id="formMatricula">
         <div class="form-group">
             <label for="turmaId">ID da Turma</label>
-            <input type="number" id="turmaId" placeholder="Ex: 10" required>
+            <div class="form-group">
+                <label for="turmaId">Selecione a Turma</label>
+                <select id="turmaId" required></select>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary" id="btnSubmit">Realizar Matrícula</button>
@@ -143,49 +146,68 @@
 </div>
 
 <script>
-    document.getElementById('formMatricula').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    async function carregarTurmas() {
+       const select = document.getElementById("turmaId");
 
-        const turmaId = document.getElementById('turmaId').value;
-        const msgBox = document.getElementById('mensagem');
-        const btn = document.getElementById('btnSubmit');
+       try {
+           const resp = await fetch("../api/admin/turmas");
+           const turmas = await resp.json();
 
-        // 1. Resetar visual
-        msgBox.style.display = 'none';
-        msgBox.className = 'feedback';
-        btn.disabled = true;
-        btn.textContent = "Processando...";
+           turmas.forEach(t => {
+               const option = document.createElement("option");
+               option.value = t.id; // ID enviado no POST
+               option.textContent = `${t.nome} — ${t.disciplina.nome} (${t.professor.nome})`;
+               select.appendChild(option);
+           });
+       } catch (e) {
+           console.error("Erro ao carregar turmas", e);
+       }
+   }
 
-        try {
-            const response = await fetch('../api/aluno/matricula', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ turmaId: parseInt(turmaId) })
-            });
+   carregarTurmas();
+   document.getElementById('formMatricula').addEventListener('submit', async function(e) {
+       e.preventDefault();
 
-            const resultado = await response.json();
+       const turmaId = document.getElementById('turmaId').value;
+       const msgBox = document.getElementById('mensagem');
+       const btn = document.getElementById('btnSubmit');
 
-            if (response.ok) {
-                msgBox.textContent = resultado.mensagem;
-                msgBox.classList.add('success');
-                msgBox.style.display = 'block';
-                document.getElementById('formMatricula').reset();
-                // Opcional: Redirecionar após sucesso
-                setTimeout(() => window.location.href = 'dashboard', 1500);
-            } else {
-                msgBox.textContent = resultado.erro || "Erro desconhecido.";
-                msgBox.classList.add('error');
-                msgBox.style.display = 'block';
-            }
-        } catch (error) {
-            msgBox.textContent = "Erro de conexão com o servidor.";
-            msgBox.classList.add('error');
-            msgBox.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Realizar Matrícula";
-        }
-    });
+       // 1. Resetar visual
+       msgBox.style.display = 'none';
+       msgBox.className = 'feedback';
+       btn.disabled = true;
+       btn.textContent = "Processando...";
+
+       try {
+           const response = await fetch('../api/aluno/matricula', {
+               method: 'POST',
+               headers: { 'Content-Type': 'application/json' },
+               body: JSON.stringify({ turmaId: parseInt(turmaId) })
+           });
+
+           const resultado = await response.json();
+
+           if (response.ok) {
+               msgBox.textContent = resultado.mensagem;
+               msgBox.classList.add('success');
+               msgBox.style.display = 'block';
+               document.getElementById('formMatricula').reset();
+               // Opcional: Redirecionar após sucesso
+               setTimeout(() => window.location.href = 'dashboard', 1500);
+           } else {
+               msgBox.textContent = resultado.erro || "Erro desconhecido.";
+               msgBox.classList.add('error');
+               msgBox.style.display = 'block';
+           }
+       } catch (error) {
+           msgBox.textContent = "Erro de conexão com o servidor.";
+           msgBox.classList.add('error');
+           msgBox.style.display = 'block';
+       } finally {
+           btn.disabled = false;
+           btn.textContent = "Realizar Matrícula";
+       }
+   });
 </script>
 
 </body>

@@ -66,7 +66,7 @@
                 const usuario = await response.json();
 
                 if (usuario.perfil.nome === 'ALUNO') {
-                    window.location.href = 'aluno/dashboard';
+                    window.location.href = 'aluno/home';
                 } else if (usuario.perfil.nome === 'ADMINISTRADOR') {
                     window.location.href = 'admin/dash';
                 } else {
